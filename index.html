@@ -63,7 +63,8 @@
   </header>
   <main class="grid">
     <a class="card" href="probka-legal-agent-status/">
-      <img src="assets/probka-legal-agent-status.webp" alt="AM Legal Agent — робот-юрист за работой" width="800" height="450" loading="lazy" decoding="async">
+      <img src="assets/probka-legal-agent-status.webp" alt="AM Legal Agent — робот-юрист за работой" width="800" height="450" loading="lazy" decoding="async"
+           data-variants='[{"src":"assets/probka-legal-agent-status.webp","alt":"AM Legal Agent — робот-юрист за работой"},{"src":"assets/probka-legal-agent-status-2.webp","alt":"AM Legal Agent — робот-юрист за работой"}]'>
       <div class="body">
         <h2>AM Legal Agent — доска задач</h2>
         <p>Рабочая доска задач и статусов проекта.</p>
@@ -73,5 +74,17 @@
   </main>
   <footer>Обновляется автоматически · GitHub Pages</footer>
 </div>
+<script>
+  // Каждая карточка показывает строго одну картинку — выбирается случайно при каждой загрузке страницы.
+  document.querySelectorAll('img[data-variants]').forEach(function (img) {
+    try {
+      var variants = JSON.parse(img.dataset.variants);
+      if (!variants.length) return;
+      var pick = variants[Math.floor(Math.random() * variants.length)];
+      img.src = pick.src;
+      img.alt = pick.alt;
+    } catch (e) { /* остаётся src по умолчанию */ }
+  });
+</script>
 </body>
 </html>
