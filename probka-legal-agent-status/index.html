@@ -680,7 +680,7 @@
     <p class="lede">Единица работы — issue. Работа вне issue не начинается. Состояние держится в этом файле; правит его приёмщик.</p>
     <p class="meta">
       <span>обновлено 4 сентября 2026</span>
-      <span>15 открытых · 28 закрытых</span>
+      <span>14 открытых · 29 закрытых</span>
       <span>github.com/DeepSpaceWombat/AM-legal-agent</span>
     </p>
   </header>
@@ -689,12 +689,12 @@
     <div>
       <p class="eyebrow">Свободны</p>
       <p class="n go">11</p>
-      <p class="note">#72 · #16 · #34 · #15 · #49 · #50 · #62 · #63 · #64 · #65 · #68</p>
+      <p class="note">#72 · #16 · #30 · #15 · #49 · #50 · #62 · #63 · #64 · #65 · #68</p>
     </div>
     <div>
       <p class="eyebrow">За гейтами</p>
-      <p class="n hold">2</p>
-      <p class="note">#30 · <span class="freeze-mark" title="Держатель заморозки">#77</span></p>
+      <p class="n hold">1</p>
+      <p class="note"><span class="freeze-mark" title="Держатель заморозки">#77</span></p>
     </div>
     <div>
       <p class="eyebrow">Backlog</p>
@@ -759,12 +759,12 @@
       </div>
 
       <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/34">#34</a></p>
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/30">#30</a></p>
         <div class="what">
-          <h3>Где живёт измерительная оснастка зонда</h3>
-          <p>Решение владельца: <code>scripts/probe/</code> в репозитории или хост. От него зависит форма сдачи #30 и воспроизводимость будущих прогонов.</p>
+          <h3>Инструментовка прогона: JSONL по чанку и небуферизованный stdout</h3>
+          <p>Не наблюдаемость — выходные переменные #28: <code>validation</code>, primary/repair, <code>finding_count</code>, <code>residual_count</code> в момент запроса, а не в конце хода. <strong>Гейт снят 04.09:</strong> #34 закрыта, форма сдачи задана заметкой <code>probe-rig-location-2026-09-04</code> — два коммита в PR (импорт оснастки байт-в-байт в <code>scripts/probe/</code>, затем инструментовка), четыре разрешённых пути, <code>scp -r</code> каталога запрещён.</p>
         </div>
-        <div class="side"><span class="pts none" title="Решение владельца — оценке по шкале не подлежит"><span class="dots"><i>○○○○○</i></span><span class="who">решение</span></span><span class="chip go">Свободна</span><span class="gate">owner-action</span></div>
+        <div class="side"><span class="pts" title="4/5 · Синьор · можно параллелить — Инструментовка не должна возмущать измерение — это и есть сложность."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent</span><span class="cond off">гейт снят 04.09</span></div>
       </div>
 
       <div class="issue">
@@ -846,15 +846,6 @@
     <h2>За гейтами<span class="qual">условие снятия названо в каждой</span></h2>
     <div class="board">
 
-      <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/30">#30</a></p>
-        <div class="what">
-          <h3>Инструментовка прогона: JSONL по чанку и небуферизованный stdout</h3>
-          <p>Не наблюдаемость — выходные переменные #28: <code>validation</code>, primary/repair, <code>finding_count</code>, <code>residual_count</code> в момент запроса, а не в конце хода.</p>
-        </div>
-        <div class="side"><span class="pts" title="4/5 · Синьор · можно параллелить — Инструментовка не должна возмущать измерение — это и есть сложность. За гейтом #34."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · парал.</span></span><span class="chip hold">Ждёт</span><span class="gate">agent</span><span class="cond on">blocked-by #34</span></div>
-      </div>
-
       <div class="issue" data-freeze>
         <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/77">#77</a></p>
         <div class="what">
@@ -905,6 +896,7 @@
       <table id="closed-table">
         <thead><tr><th>Issue</th><th>Что закрыто</th><th>Вердикт</th></tr></thead>
         <tbody>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/34">#34</a></td><td>Решение владельца — вариант A: измерительная оснастка ступени 5.3 переезжает в репозиторий, <code>scripts/probe/</code>. Граница записана явно: не <code>src/</code>, вне устанавливаемого пакета, вне нормативного pytest, зависимость односторонняя. Закреплённые хэши старых комплектов не пересчитываются — связность держит правило импорта байт-в-байт; суммы <code>probe27.py</code> и <code>probe28.py</code> сверены на хосте и совпали. Осмотр дал две поправки к тексту issue: <code>probe-live.py</code> не существует (сайдкар — <code>docker logs -f</code> плюс <code>tail -F</code>), зондов три, а не два</td><td>ACCEPTED WITH NOTES · 04.09 — owner-action, заметка <code>probe-rig-location-2026-09-04</code>; ноты N-1 (раздел «спека правится не сейчас» устарел в тот же день) и N-2 (ссылка на vault-коммит не выжила)</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/29">#29</a></td><td>Профиль локальной модели попал в комплект доказательств исполняемо: раздел 3 обоих runbook'ов (en+ru) получил единый блок сбора <code>model-profile.txt</code> — <code>ollama show --modelfile</code> (параметры тега), <code>ollama list</code> и <code>ollama show</code> (digest), <code>ollama ps</code> при загруженной модели (фактические <code>CONTEXT</code> и распределение CPU/GPU). Закреплено требование класть слепок рядом с digest образа и контрольной суммой входа для каждого измерения GATE 5.3 и каждого прогона F-3 и прямо сказано, что имя тега профилем не является: <code>:latest</code> — движущаяся цель, одного digest мало. Отдельный скрипт не заводился</td><td>ACCEPTED WITH NOTES · 04.09 — PR #79, merge <code>76fb436</code>; ноты N-1 (порядок разделов) и N-2 (<code>set -euo pipefail</code> в интерактивной вставке)</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/75">#75</a></td><td>Транзитная очередь путей watch-процесса <code>graphify-out/.pending_changes</code> отнесена к тому же классу игнора, что <code>.rebuild.lock</code> и <code>.graph.tmp.json</code>, — по норме решения #46 «регенерируемое и чисто-локальное», а не по удобству: строка в <code>.gitignore</code>, абзац в <code>AGENTS.md</code> и регрессия в <code>tests/test_acceptance_check.py</code>. <code>repo.graphify-untracked</code> даёт PASS при живом файле в дереве (проверено приёмщиком исполнением), накапливаемый журнал по-прежнему валит вердикт</td><td>ACCEPTED WITH NOTES · 04.09 — PR #78, merge <code>add0cb6</code>; нота N-1 (тело PR называет <code>.vocab.txt</code>, которого нет в каноне)</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/71">#71</a></td><td>Ступень 5.3: безопасный хвост после schema-valid объекта определяется точным allowlist (<code>Готово.</code>, <code>&lt;/s&gt;</code>, <code>&lt;|im_end|&gt;</code>) вместо формы «один токен ≤32 символов без пробелов» и неполного словаря слов управления вердиктом. Четыре воспроизведения ноты N-1 (<code>Неверно</code>, <code>НЕТ!</code>, <code>no</code>, <code>Остаточное_ФИО_найдено</code>) дают fail-closed; тесты PR #57 и #69 прошли без правки ожиданий (в диффе тестов 0 удалений). Открытого класса, который приходилось бы описывать словарём, у правила больше нет; остаётся неизмеренность на живой модели — вынесена в #77</td><td>ACCEPTED WITH NOTES · 04.09 — PR #76, merge <code>e5be6c3</code>; нота N-1 (<code>&lt;|im_end|&gt;</code> без теста)</td></tr>
