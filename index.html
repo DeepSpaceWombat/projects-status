@@ -4,62 +4,155 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Дашборды проектов</title>
+<script>
+/* Тема ставится до первой отрисовки: иначе выбранная «Ночь» мигнёт светлым.
+   Ключ и логика — те же, что на доске задач AM Legal Agent: оба сайта живут
+   на одном происхождении, поэтому выбор темы синхронизируется через
+   localStorage сам. */
+(function () {
+  try {
+    var t = localStorage.getItem('board-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-  :root { color-scheme: light dark; }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font: 15px/1.5 "IBM Plex Sans", system-ui, sans-serif;
-    background: #F4F6F4; color: #1A1D1A;
-    min-height: 100vh;
+  /* Токены палитры — перенесены с доски задач AM Legal Agent: лендинг и
+     доска выглядят и переключаются одинаково. */
+  :root {
+    --ground:      #F4F6F4;
+    --surface:     #FFFFFF;
+    --ink:         #171C1A;
+    --ink-soft:    #58635E;
+    --ink-faint:   #7E8985;
+    --rule:        #DCE2DF;
+    --rule-strong: #BFC8C4;
+    --accent:      #1E5C53;
+    --accent-tint: #E3EDEA;
+    --step--1: 0.813rem;
+    --step-0:  1rem;
+    --step-1:  1.19rem;
+    --step-4:  2.75rem;
+    color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
-    body { background: #14171A; color: #E8EBE8; }
+    :root:not([data-theme="light"]) {
+      --ground: #141817; --surface: #1B211F; --ink: #E6EBE8;
+      --ink-soft: #A0ADA8; --ink-faint: #7C8783; --rule: #2C3532;
+      --rule-strong: #414C48; --accent: #6FBBAC; --accent-tint: #1E2E2B;
+      color-scheme: dark;
+    }
   }
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 48px 24px 64px; }
-  header h1 {
-    font: 600 28px/1.2 "Literata", Georgia, serif;
-    margin: 0 0 6px;
+  :root[data-theme="dark"] {
+    --ground: #141817; --surface: #1B211F; --ink: #E6EBE8;
+    --ink-soft: #A0ADA8; --ink-faint: #7C8783; --rule: #2C3532;
+    --rule-strong: #414C48; --accent: #6FBBAC; --accent-tint: #1E2E2B;
+    color-scheme: dark;
   }
-  header p { margin: 0 0 32px; opacity: .65; }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: var(--step-0); line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 68.75rem; margin: 0 auto; padding: 48px 24px 64px; }
+
+  /* Шапка — как на доске задач: строка-надзаголовок с переключателем темы,
+     крупный Literata-заголовок, подзаголовок, мета-строка под волосяной
+     линией. */
+  .masthead { display: flex; flex-direction: column; gap: 1rem; }
+  .masthead h1 {
+    font-family: Literata, Georgia, serif; font-weight: 600;
+    font-size: var(--step-4); line-height: 1.2; letter-spacing: -0.015em;
+    text-wrap: balance; margin: 0;
+  }
+  .masthead .lede { margin: 0; font-size: var(--step-1); color: var(--ink-soft); max-width: 52ch; }
+  .eyebrow {
+    margin: 0;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: var(--step--1); letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin: 0;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: var(--step--1); color: var(--ink-faint);
+    padding-top: 0.5rem; border-top: 1px solid var(--rule);
+  }
+
+  /* Переключатель темы — те же две кнопки: «Auto» и день/ночь с иконкой. */
+  .topline { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .themesw { display: inline-flex; border: 1px solid var(--rule-strong); border-radius: 999px; overflow: hidden; background: var(--surface); }
+  .themesw button {
+    font: inherit; font-family: "IBM Plex Mono", monospace; font-size: 0.688rem;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    background: none; border: 0; border-left: 1px solid var(--rule);
+    color: var(--ink-faint); padding: 0.3rem 0.7rem; cursor: pointer;
+  }
+  .themesw button:first-child { border-left: 0; }
+  .themesw button:hover { color: var(--ink); }
+  .themesw button[aria-pressed="true"] { background: var(--accent-tint); color: var(--accent); font-weight: 600; }
+  .themesw button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .themesw button.icon { display: inline-flex; align-items: center; padding: 0.3rem 0.6rem; }
+  .themesw button.icon svg { width: 0.95rem; height: 0.95rem; display: block; }
+  .themesw button.icon[data-auto="1"] { color: var(--ink-faint); }
+  .themesw button.icon[data-auto="0"] { background: var(--accent-tint); color: var(--accent); }
+
+  /* Карточки — на тех же токенах, поэтому реагируют на переключатель. */
   .grid {
     display: grid; gap: 18px;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   }
   .card {
     display: block; text-decoration: none; color: inherit;
-    background: #FFFFFF; border: 1px solid rgba(26,29,26,.12);
-    border-radius: 12px; overflow: hidden;
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 6px; overflow: hidden;
     transition: border-color .15s, transform .15s, box-shadow .15s;
   }
   .card:hover {
-    border-color: #3D6B4F; transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(26,29,26,.08);
-  }
-  @media (prefers-color-scheme: dark) {
-    .card { background: #1C2126; border-color: rgba(232,235,232,.14); }
-    .card:hover { border-color: #7FB89A; box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+    border-color: var(--accent); transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.14);
   }
   .card img {
     display: block; width: 100%; height: auto;
     aspect-ratio: 16 / 9; object-fit: cover;
   }
   .card .body { padding: 18px 20px 20px; }
-  .card h2 { font: 600 17px/1.3 "IBM Plex Sans", sans-serif; margin: 0 0 8px; color: inherit; }
-  .card p { margin: 0 0 14px; font-size: 14px; opacity: .7; }
-  .card .go { font: 500 13px/1 "IBM Plex Mono", monospace; color: #2E7D54; }
-  @media (prefers-color-scheme: dark) { .card .go { color: #7FB89A; } }
-  footer { margin-top: 40px; font-size: 12.5px; opacity: .5; }
+  .card h2 { font: 600 var(--step-0)/1.3 "IBM Plex Sans", sans-serif; margin: 0 0 8px; }
+  .card p { margin: 0 0 14px; font-size: var(--step--1); color: var(--ink-soft); }
+  .card .go { font: 500 13px/1 "IBM Plex Mono", monospace; color: var(--accent); }
+  footer { margin-top: 40px; font-size: var(--step--1); color: var(--ink-faint); }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
+  <header class="masthead">
+    <div class="topline">
+      <p class="eyebrow">DeepSpaceWombat · публичные статусы</p>
+      <div class="themesw" id="themesw" role="group" aria-label="Тема оформления">
+        <button type="button" id="theme-auto" aria-pressed="true" title="Следовать теме системы">Auto</button>
+        <button type="button" id="theme-toggle" class="icon" data-auto="1" aria-label="Переключить тему">
+          <svg id="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.2"/>
+            <path d="M12 2.4v2.4M12 19.2v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.4 12h2.4M19.2 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/>
+          </svg>
+          <svg id="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+            <path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.9 6.9 0 0 0 11.1 11.1z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
     <h1>Дашборды проектов</h1>
-    <p>Публичные статус-дашборды. Каждый обновляется автоматически из своего приватного репозитория.</p>
+    <p class="lede">Публичные статус-дашборды. Каждый обновляется автоматически из своего приватного репозитория.</p>
+    <p class="meta">
+      <span>обновляется автоматически</span>
+      <span>github.com/DeepSpaceWombat/projects-status</span>
+    </p>
   </header>
   <main class="grid">
     <a class="card" href="probka-legal-agent-status/">
@@ -75,28 +168,98 @@
   <footer>Обновляется автоматически · GitHub Pages</footer>
 </div>
 <script>
-  // Каждая карточка показывает строго одну картинку, выбираемую случайно при каждой загрузке
-  // страницы (без памяти о прошлом выборе). Список картинок не ведётся: папка карточки
-  // перечитывается через GitHub Contents API, поэтому в ротацию попадает всё, что в ней лежит.
-  // Если API недоступен (лимит, офлайн) — остаётся src по умолчанию.
-  (function () {
-    var API = 'https://api.github.com/repos/DeepSpaceWombat/projects-status/contents/';
-    var IMG_RE = /\.(webp|png|jpe?g|gif|avif|svg)$/i;
-    document.querySelectorAll('img[data-card-assets]').forEach(function (img) {
-      var dir = 'assets/' + img.dataset.cardAssets;
-      fetch(API + dir, { headers: { 'Accept': 'application/vnd.github+json' } })
-        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then(function (entries) {
-          var files = Array.isArray(entries)
-            ? entries.filter(function (e) { return e.type === 'file' && IMG_RE.test(e.name); })
-            : [];
-          if (!files.length) return;
-          var pick = files[Math.floor(Math.random() * files.length)];
-          img.src = dir + '/' + pick.name;
-        })
-        .catch(function () { /* остаётся src по умолчанию */ });
-    });
-  })();
+/* Переключатель темы — та же пара кнопок, что на доске задач, и тот же
+   ключ localStorage («board-theme»): выбор делится между страницами.
+   «Auto» отдаёт решение системе (data-theme снимается). Вторая кнопка
+   переключает день/ночь и одновременно показывает, что сейчас на экране:
+   в режиме Auto иконка приглушена — тема не зафиксирована и поедет за
+   системой; при явном выборе подсвечена. Клик по ней всегда фиксирует
+   тему, обратную видимой. */
+(function () {
+  var sw = document.getElementById('themesw');
+  if (!sw) return;
+  var auto = document.getElementById('theme-auto');
+  var toggle = document.getElementById('theme-toggle');
+  var sun = document.getElementById('ico-sun');
+  var moon = document.getElementById('ico-moon');
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+  function read() {
+    try {
+      var t = localStorage.getItem('board-theme');
+      return t === 'light' || t === 'dark' ? t : 'auto';
+    } catch (e) { return 'auto'; }
+  }
+  function save(mode) {
+    try {
+      if (mode === 'auto') localStorage.removeItem('board-theme');
+      else localStorage.setItem('board-theme', mode);
+    } catch (e) {}
+  }
+  function effective(mode) {
+    if (mode !== 'auto') return mode;
+    return mq && mq.matches ? 'dark' : 'light';
+  }
+  function paint(mode) {
+    if (mode === 'auto') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', mode);
+    var eff = effective(mode);
+    /* через атрибут, а не свойство: SVGElement не наследует HTMLElement,
+       и svg.hidden = false поставил бы JS-свойство, не сняв разметочный
+       hidden — иконка луны не появлялась бы никогда */
+    sun.toggleAttribute('hidden', eff !== 'light');
+    moon.toggleAttribute('hidden', eff !== 'dark');
+    auto.setAttribute('aria-pressed', mode === 'auto' ? 'true' : 'false');
+    toggle.setAttribute('data-auto', mode === 'auto' ? '1' : '0');
+    toggle.setAttribute(
+      'aria-label',
+      (eff === 'dark' ? 'Сейчас ночная тема' : 'Сейчас дневная тема') +
+      (mode === 'auto' ? ' по настройке системы' : ' — выбрана вручную') +
+      '. Переключить на ' + (eff === 'dark' ? 'дневную' : 'ночную')
+    );
+    toggle.title = toggle.getAttribute('aria-label');
+  }
+  function set(mode) { save(mode); paint(mode); }
+
+  auto.addEventListener('click', function () { set('auto'); });
+  toggle.addEventListener('click', function () {
+    set(effective(read()) === 'dark' ? 'light' : 'dark');
+  });
+
+  /* пока держится Auto, система может сменить тему под нами — иконка обязана
+     показывать то, что на экране, а не то, что было при загрузке */
+  if (mq) {
+    var onChange = function () { if (read() === 'auto') paint('auto'); };
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else if (mq.addListener) mq.addListener(onChange);
+  }
+
+  paint(read());
+})();
+</script>
+<script>
+/* Каждая карточка показывает строго одну картинку, выбираемую случайно при каждой загрузке
+   страницы (без памяти о прошлом выборе). Список картинок не ведётся: папка карточки
+   перечитывается через GitHub Contents API, поэтому в ротацию попадает всё, что в ней лежит.
+   Если API недоступен (лимит, офлайн) — остаётся src по умолчанию. */
+(function () {
+  var API = 'https://api.github.com/repos/DeepSpaceWombat/projects-status/contents/';
+  var IMG_RE = /\.(webp|png|jpe?g|gif|avif|svg)$/i;
+  document.querySelectorAll('img[data-card-assets]').forEach(function (img) {
+    var dir = 'assets/' + img.dataset.cardAssets;
+    fetch(API + dir, { headers: { 'Accept': 'application/vnd.github+json' } })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (entries) {
+        var files = Array.isArray(entries)
+          ? entries.filter(function (e) { return e.type === 'file' && IMG_RE.test(e.name); })
+          : [];
+        if (!files.length) return;
+        var pick = files[Math.floor(Math.random() * files.length)];
+        img.src = dir + '/' + pick.name;
+      })
+      .catch(function () { /* остаётся src по умолчанию */ });
+  });
+})();
 </script>
 </body>
 </html>
