@@ -157,10 +157,46 @@
       </div>
     </a>
   </main>
+<script>
+/* Каждая карточка показывает строго одну картинку, выбираемую случайно при каждой
+   загрузке страницы (без памяти о прошлом выборе). Список картинок не ведётся: папка
+   карточки перечитывается через GitHub Contents API, поэтому в ротацию попадает всё,
+   что в ней лежит. Если API недоступен (лимит, офлайн) — остаётся src по умолчанию.
+
+   Дефолтная картинка из разметки никогда не показывается: иначе страница нарисует
+   её, а через мгновение заменит случайной — двойное переключение. До выбора
+   картинка спрятана через visibility, а не hidden: кадр 16/9 остаётся
+   зарезервированным, и раскладка карточки не прыгает. Показ — после загрузки
+   выбранного кадра, один раз. */
+(function () {
+  var API = 'https://api.github.com/repos/DeepSpaceWombat/projects-status/contents/';
+  var IMG_RE = /\.(webp|png|jpe?g|gif|avif|svg)$/i;
+  document.querySelectorAll('img[data-card-assets]').forEach(function (img) {
+    img.style.visibility = 'hidden';
+    var dir = 'assets/' + img.dataset.cardAssets;
+    var shown = false;
+    function reveal() { if (!shown) { shown = true; img.style.visibility = ''; } }
+    fetch(API + dir, { headers: { 'Accept': 'application/vnd.github+json' } })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (entries) {
+        var files = Array.isArray(entries)
+          ? entries.filter(function (e) { return e.type === 'file' && IMG_RE.test(e.name); })
+          : [];
+        if (!files.length) { reveal(); return; }
+        var pick = files[Math.floor(Math.random() * files.length)];
+        img.onload = reveal;
+        img.onerror = reveal;
+        img.src = dir + '/' + pick.name;
+        if (img.complete) reveal(); /* уже в кэше: onload мог не успеть */
+      })
+      .catch(reveal);
+  });
+})();
+</script>
   <footer>Обновляется автоматически · GitHub Pages</footer>
 </div>
 <script>
-/* Переключатель темы — та же пара кнопок, что на доске задач, и тот же
+  /* Переключатель темы — та же пара кнопок, что на доске задач, и тот же
    ключ localStorage («board-theme»): выбор делится между страницами.
    «Auto» отдаёт решение системе (data-theme снимается). Вторая кнопка
    переключает день/ночь и одновременно показывает, что сейчас на экране:
@@ -227,30 +263,6 @@
   }
 
   paint(read());
-})();
-</script>
-<script>
-/* Каждая карточка показывает строго одну картинку, выбираемую случайно при каждой загрузке
-   страницы (без памяти о прошлом выборе). Список картинок не ведётся: папка карточки
-   перечитывается через GitHub Contents API, поэтому в ротацию попадает всё, что в ней лежит.
-   Если API недоступен (лимит, офлайн) — остаётся src по умолчанию. */
-(function () {
-  var API = 'https://api.github.com/repos/DeepSpaceWombat/projects-status/contents/';
-  var IMG_RE = /\.(webp|png|jpe?g|gif|avif|svg)$/i;
-  document.querySelectorAll('img[data-card-assets]').forEach(function (img) {
-    var dir = 'assets/' + img.dataset.cardAssets;
-    fetch(API + dir, { headers: { 'Accept': 'application/vnd.github+json' } })
-      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-      .then(function (entries) {
-        var files = Array.isArray(entries)
-          ? entries.filter(function (e) { return e.type === 'file' && IMG_RE.test(e.name); })
-          : [];
-        if (!files.length) return;
-        var pick = files[Math.floor(Math.random() * files.length)];
-        img.src = dir + '/' + pick.name;
-      })
-      .catch(function () { /* остаётся src по умолчанию */ });
-  });
 })();
 </script>
 </body>
