@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: light dark; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; font: 14px/1.5 system-ui, sans-serif; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<title>Доска задач AM Legal Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground:      #F4F6F4;
+    --surface:     #FFFFFF;
+    --ink:         #171C1A;
+    --ink-soft:    #58635E;
+    --ink-faint:   #7E8985;
+    --rule:        #DCE2DF;
+    --rule-strong: #BFC8C4;
+    --accent:      #1E5C53;
+    --accent-tint: #E3EDEA;
+    --crit:        #9A3B2C;
+    --crit-tint:   #F5E4E0;
+    --warn:        #8A6620;
+    --warn-tint:   #F4EBD8;
+    --ok:          #2C6A4F;
+    --ok-tint:     #E1EEE6;
+    --step--1: 0.813rem;
+    --step-0:  1rem;
+    --step-1:  1.19rem;
+    --step-2:  1.5rem;
+    --step-3:  2rem;
+    --step-4:  2.75rem;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141817; --surface: #1B211F; --ink: #E6EBE8;
+      --ink-soft: #A0ADA8; --ink-faint: #7C8783; --rule: #2C3532;
+      --rule-strong: #414C48; --accent: #6FBBAC; --accent-tint: #1E2E2B;
+      --crit: #DE8878; --crit-tint: #33211D; --warn: #D3AC5F; --warn-tint: #2E2718;
+      --ok: #74B693; --ok-tint: #1B2B23; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141817; --surface: #1B211F; --ink: #E6EBE8;
+    --ink-soft: #A0ADA8; --ink-faint: #7C8783; --rule: #2C3532;
+    --rule-strong: #414C48; --accent: #6FBBAC; --accent-tint: #1E2E2B;
+    --crit: #DE8878; --crit-tint: #33211D; --warn: #D3AC5F; --warn-tint: #2E2718;
+    --ok: #74B693; --ok-tint: #1B2B23; color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    font-size: var(--step-0); line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    max-width: 64rem; margin: 0 auto;
+    padding: clamp(2rem, 5vw, 4.5rem) clamp(1.1rem, 4vw, 3rem) 6rem;
+    display: flex; flex-direction: column; gap: 3.25rem;
+  }
+  h1, h2, h3 {
+    font-family: Literata, Georgia, "Times New Roman", serif;
+    font-weight: 600; line-height: 1.2; text-wrap: balance; margin: 0;
+  }
+  p, ul, ol { margin: 0; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: var(--step--1); letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+  .masthead { display: flex; flex-direction: column; gap: 1rem; }
+  .masthead h1 { font-size: var(--step-4); letter-spacing: -0.015em; }
+  .masthead .lede { font-size: var(--step-1); color: var(--ink-soft); max-width: 52ch; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: var(--step--1); color: var(--ink-faint);
+    padding-top: 0.5rem; border-top: 1px solid var(--rule);
+  }
+  section { display: flex; flex-direction: column; gap: 1.25rem; }
+  section > h2 {
+    font-size: var(--step-2); letter-spacing: -0.01em;
+    padding-bottom: 0.55rem; border-bottom: 2px solid var(--ink);
+    display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+  }
+  section > h2 .qual {
+    font-family: "IBM Plex Sans", sans-serif; font-size: var(--step--1);
+    font-weight: 400; color: var(--ink-faint); letter-spacing: 0.02em;
+    text-align: right; flex: 1 1 auto;
+  }
+  .prose { display: flex; flex-direction: column; gap: 0.9rem; max-width: 70ch; }
+  .prose ul { padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.45rem; }
+  .prose li::marker { color: var(--accent); }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.88em; }
+  code { background: var(--accent-tint); color: var(--accent); padding: 0.08em 0.34em; border-radius: 2px; }
+  strong { font-weight: 600; }
+
+  .tally { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border: 1px solid var(--rule); }
+  .tally > div { padding: 1.25rem 1.4rem; display: flex; flex-direction: column; gap: 0.35rem; border-left: 1px solid var(--rule); }
+  .tally > div:first-child { border-left: 0; }
+  .tally .n { font-family: Literata, Georgia, serif; font-size: var(--step-3); line-height: 1; font-variant-numeric: tabular-nums; }
+  .tally .n.go { color: var(--ok); }
+  .tally .n.hold { color: var(--warn); }
+  .tally .n.off { color: var(--ink-faint); }
+  .tally .note { font-size: var(--step--1); color: var(--ink-soft); }
+  @media (max-width: 48rem) { .tally { grid-template-columns: repeat(2, 1fr); } .tally > div:nth-child(3) { border-left: 0; } .tally > div:nth-child(n+3) { border-top: 1px solid var(--rule); } }
+  @media (max-width: 30rem) { .tally { grid-template-columns: 1fr; } .tally > div { border-left: 0; border-top: 1px solid var(--rule); } .tally > div:first-child { border-top: 0; } }
+
+  .board { display: flex; flex-direction: column; }
+  .issue {
+    display: grid; grid-template-columns: 4.5rem 1fr 13rem; gap: 0 1.5rem;
+    padding: 1.15rem 0; border-top: 1px solid var(--rule);
+    align-items: baseline;
+  }
+  .issue:last-child { border-bottom: 1px solid var(--rule); }
+  .issue .no {
+    font-family: "IBM Plex Mono", monospace; font-size: var(--step-1);
+    font-variant-numeric: tabular-nums; color: var(--ink-faint);
+  }
+  .issue .what { display: flex; flex-direction: column; gap: 0.3rem; }
+  .issue .what h3 { font-size: var(--step-0); font-family: "IBM Plex Sans", sans-serif; font-weight: 600; }
+  .issue .what p { font-size: var(--step--1); color: var(--ink-soft); max-width: 62ch; }
+  .issue .side { display: flex; flex-direction: column; gap: 0.4rem; align-items: flex-start; }
+  .chip {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.688rem;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.2rem 0.45rem; border-radius: 2px; white-space: nowrap;
+  }
+  .chip.go   { background: var(--ok-tint);   color: var(--ok); }
+  .chip.hold { background: var(--warn-tint); color: var(--warn); }
+  .chip.off  { background: var(--rule);      color: var(--ink-soft); }
+  .chip.crit { background: var(--crit-tint); color: var(--crit); }
+
+  /* Держатель заморозки — единственная карточка, которую нельзя брать вслепую.
+     Пометка ставится атрибутом, а не классом: check_board_counters в
+     scripts/acceptance_check.py считает буквальную строку class="issue",
+     и модификатор в классе сломал бы счётчик молча. */
+  .issue[data-freeze] {
+    background: var(--crit-tint);
+    box-shadow: inset 3px 0 0 var(--crit);
+    margin-left: -1rem; padding-left: 1rem;
+    margin-right: -1rem; padding-right: 1rem;
+  }
+  .issue[data-freeze] .no a { color: var(--crit); }
+
+  /* Та же пометка в сводке шапки. В строке .note нет github-ссылок, поэтому
+     обёртка безопасна: board_open_issue_numbers ищет github.com/.../issues/N,
+     а check_board_counters — <p class="n …"> и пары </div></div>. */
+  /* Оценка единицы: 5 точек = уровень исполнителя, слово = можно ли параллелить.
+     Две оси разведены намеренно: по одним точкам parity-правило «нечётное = соло»
+     не читается, а именно параллелизм и есть операционное решение. */
+  .pts { display: inline-flex; align-items: baseline; gap: 0.4rem; white-space: nowrap; }
+  .pts .dots { font-size: 0.75rem; letter-spacing: 0.12em; line-height: 1; }
+  .pts .dots b { color: var(--accent); font-weight: 400; }
+  .pts .dots i { color: var(--rule-strong); font-style: normal; }
+  .pts .who {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.625rem;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint);
+  }
+  .pts .who .solo { color: var(--crit); font-weight: 700; }
+  .pts.none .dots i { color: var(--rule); }
+
+  .scale { display: flex; flex-direction: column; gap: 0; }
+  .scale .row {
+    display: grid; grid-template-columns: 5.5rem 8.5rem 1fr; gap: 0 1.25rem;
+    padding: 0.7rem 0; border-top: 1px solid var(--rule); align-items: baseline;
+  }
+  .scale .row:first-child { border-top: 1px solid var(--rule-strong); }
+  .scale .d { font-size: 0.813rem; letter-spacing: 0.12em; line-height: 1; }
+  .scale .d b { color: var(--accent); font-weight: 400; }
+  .scale .d i { color: var(--rule-strong); font-style: normal; }
+  .scale .lv {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.688rem;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft);
+  }
+  .scale .lv .solo { color: var(--crit); font-weight: 700; }
+  .scale .tx { font-size: var(--step--1); color: var(--ink-soft); }
+
+  .note .freeze-mark {
+    background: var(--crit-tint); color: var(--crit);
+    border: 1px solid currentColor; border-radius: 2px;
+    padding: 0 0.28rem; font-weight: 700;
+  }
+  .issue .no a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule-strong); }
+  .issue .no a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  td.q a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--rule-strong); }
+  td.q a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .gate { font-family: "IBM Plex Mono", monospace; font-size: 0.688rem; color: var(--ink-faint); letter-spacing: 0.03em; }
+  @media (max-width: 46rem) {
+    .issue { grid-template-columns: 3.5rem 1fr; gap: 0 1rem; }
+    .issue .side { grid-column: 2; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.4rem; }
+  }
+
+  .callout {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-top: 3px solid var(--accent); padding: 1.35rem 1.5rem;
+    display: flex; flex-direction: column; gap: 0.6rem;
+  }
+  .callout.alarm { border-top-color: var(--crit); }
+  .callout h3 { font-size: var(--step-1); }
+  .callout p { max-width: 70ch; color: var(--ink-soft); }
+  .callout p.lead { color: var(--ink); }
+
+  .tablewrap { overflow-x: auto; border: 1px solid var(--rule); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; min-width: 34rem; }
+  th, td { text-align: left; vertical-align: top; padding: 0.7rem 1rem; border-bottom: 1px solid var(--rule); font-size: var(--step--1); }
+  thead th {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.688rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint);
+    font-weight: 400; border-bottom: 1px solid var(--rule-strong);
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.q { font-family: "IBM Plex Mono", monospace; color: var(--ink-faint); white-space: nowrap; }
+
+  footer {
+    border-top: 1px solid var(--rule); padding-top: 1.25rem;
+    font-size: var(--step--1); color: var(--ink-faint);
+    display: flex; flex-direction: column; gap: 0.5rem; max-width: 70ch;
+  }
+  a { color: var(--accent); }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Пайплайны исполнения: три варианта одного механизма */
+  .pipes { display: flex; flex-direction: column; gap: 26px; }
+  .pipe { background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 4px; padding: 20px 22px 22px; display: flex;
+    flex-direction: column; gap: 12px; }
+  .pipe.rec { border-color: var(--accent); border-left-width: 4px; }
+  .pipe-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; }
+  .pipe-head h3 { margin: 0; font-size: var(--step-1); }
+  .pipe-badge { font-size: 0.688rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 3px;
+    background: var(--accent-tint); color: var(--accent); white-space: nowrap; }
+  .pipe-badge.alt { background: var(--warn-tint); color: var(--warn); }
+  .pipe-badge.no  { background: var(--crit-tint); color: var(--crit); }
+  .pipe figure { margin: 4px 0 2px; overflow-x: auto; }
+  .pipe figure svg { display: block; max-width: 100%; height: auto;
+    min-width: 560px; color: var(--ink-soft); }
+  .pipe figcaption { font-size: var(--step--1); color: var(--ink-faint);
+    margin-top: 8px; }
+  .pipe p { margin: 0; }
+  .pipe .verdict { font-size: var(--step--1); border-top: 1px solid var(--rule);
+    padding-top: 11px; color: var(--ink-soft); }
+  .pipe .verdict b { color: var(--ink); }
+  .dg-box { fill: var(--surface); stroke: currentColor; stroke-width: 1.2; }
+  .dg-box-a { fill: var(--accent-tint); stroke: var(--accent); stroke-width: 1.4; }
+  .dg-box-x { fill: var(--crit-tint); stroke: var(--crit); stroke-width: 1.4; }
+  .dg-t { font: 600 12px "Inter", system-ui, sans-serif; fill: var(--ink);
+    text-anchor: middle; }
+  .dg-s { font: 500 10.5px "Inter", system-ui, sans-serif; fill: var(--ink-faint);
+    text-anchor: middle; }
+  .dg-l { font: 500 10.5px "Inter", system-ui, sans-serif; fill: var(--ink-soft);
+    text-anchor: middle; }
+  .dg-x { font: 600 10.5px "Inter", system-ui, sans-serif; fill: var(--crit);
+    text-anchor: middle; }
+  .dg-a { stroke: currentColor; stroke-width: 1.2; fill: none; }
+  .dg-a-x { stroke: var(--crit); stroke-width: 1.3; fill: none;
+    stroke-dasharray: 4 3; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <p class="eyebrow">AM Legal Agent · доска задач</p>
+    <h1>Очередь работ</h1>
+    <p class="lede">Единица работы — issue. Работа вне issue не начинается. Состояние держится в этом файле; правит его приёмщик.</p>
+    <p class="meta">
+      <span>обновлено 3 сентября 2026</span>
+      <span>18 открытых · 20 закрытых</span>
+      <span>github.com/DeepSpaceWombat/AM-legal-agent</span>
+    </p>
+  </header>
+
+  <div class="tally">
+    <div>
+      <p class="eyebrow">Свободны</p>
+      <p class="n go">15</p>
+      <p class="note">#18 · <span class="freeze-mark" title="Держатель заморозки">#60</span> · #17 · #44 · #29 · #16 · #34 · #15 · #49 · #50 · #62 · #63 · #64 · #65 · #66</p>
+    </div>
+    <div>
+      <p class="eyebrow">За гейтами</p>
+      <p class="n hold">1</p>
+      <p class="note">#30</p>
+    </div>
+    <div>
+      <p class="eyebrow">Backlog</p>
+      <p class="n off">2</p>
+      <p class="note">#19 · #31</p>
+    </div>
+  </div>
+
+  <div class="callout alarm">
+    <h3>Заморожено сейчас</h3>
+    <p><strong>Держатель заморозки</strong> — issue <strong>#60</strong>: её закрытие снимает заморозку <code>_validate_response</code>.</p>
+    <p><strong>Следующий шаг</strong> — issue <strong>#60</strong>: свободная <code>agent</code>-issue, которую агент берёт сейчас для приведения кода и докстринга правила приёма хвоста к одному утверждению.</p>
+    <p><strong>Сейчас совпадают:</strong> #60 одновременно держит заморозку и является следующим шагом.</p>
+    <p class="lead"><code>_validate_response</code> в <code>pipeline/anonymize/gate_llm.py</code> — держатель <strong>#60</strong>. <code>_chunk_payload</code> <strong>разморожена</strong>.</p>
+    <p><strong>Синхронизировано 02.09 приёмкой PR #40 (issue #14).</strong> Пересдача F-3 снята: 15 PASS / 16, остаточных находок PII ноль на всех ходах. Сравнение с базой F-3 завершено, поэтому заморозка <code>_chunk_payload</code> снята — её держала сопоставимость измерения, а измерение закрыто. Решение владельца 02.09.</p>
+    <p><strong>Вторая функция держится дальше.</strong> Приёмка PR #57 (03.09) закрыла #33 и передала заморозку <strong>#60</strong>: правило приёма хвоста переписано, но следующий операционный перепрогон ступени 5.3 меряет уже его — правка <code>_validate_response</code> вне #60 рвёт сопоставимость молча.</p>
+    <p>Держатель заморозки перечитывается из последнего вердикта в <code>decisions/acceptance-log.md</code>, а не угадывается по номеру issue. <code>AGENTS.md</code> §7 и эта карточка называют одну и ту же issue; совпадение проверяется исполняемо — <code>acceptance_check.py</code>, проверки <code>repo.freeze-anchor</code> и <code>vault.freeze-anchor</code>.</p>
+  </div>
+
+  <section>
+    <h2>Оценка единицы<span class="qual">пять точек — уровень исполнителя, слово рядом — можно ли параллелить</span></h2>
+    <p class="measure">Оценка отвечает на два вопроса разом: <strong>кому поручить</strong> и <strong>можно ли начинать рядом с чем-то ещё</strong>. Точки дают первое, слово — второе. Развести их пришлось намеренно: в шкале параллельность закодирована чётностью (5 и 3 — соло, 4 и 2 — параллельно), а чётность никто не запоминает и читать её глазами нельзя.</p>
+    <div class="scale">
+        <div class="row"><span class="d"><b>●●●●●</b></span><span class="lv">Синьор · <span class="solo">соло</span></span><span class="tx">Сложная долгая работа со многими связями. Не параллелить ни с чем: пока она идёт, соседняя единица встанет на её же файлы или на её же измерение.</span></div>
+        <div class="row"><span class="d"><b>●●●●</b><i>○</i></span><span class="lv">Синьор · парал.</span><span class="tx">Сложная долгая, но независимая. Можно вести рядом с другой — общих файлов и общих гейтов нет.</span></div>
+        <div class="row"><span class="d"><b>●●●</b><i>○○</i></span><span class="lv">Мидл · <span class="solo">соло</span></span><span class="tx">Не очень сложная, но со связями. Чаще всего связь — общий файл: четыре единицы гейта приёмки (#49, #50, #64, #65) живут в одном <code>acceptance_check.py</code> и между собой не параллелятся.</span></div>
+        <div class="row"><span class="d"><b>●●</b><i>○○○</i></span><span class="lv">Мидл · парал.</span><span class="tx">Несложная, недолгая, независимая. Берётся рядом с чем угодно.</span></div>
+        <div class="row"><span class="d"><b>●</b><i>○○○○</i></span><span class="lv">Джун · парал.</span><span class="tx">Справится самый простой исполнитель: правка в одном месте, ошибка видна сразу.</span></div>
+    </div>
+    <p class="measure"><strong>Ступень «Джун» сегодня пуста, и это не случайность.</strong> Даже мелкая правка доков здесь требует прочитать канон и понять, какое из четырёх мест авторитетно, — а это уже не самый простой исполнитель. Ступень оставлена: если появится единица, которую можно объяснить одной фразой без чтения канона, ей найдётся место.</p>
+    <p class="measure">Карточки владельца (<code>owner-action</code>) точек не получают: там нечего оценивать по трудоёмкости — это решение, а не работа. У них стоит <span class="pts none"><span class="dots"><i>○○○○○</i></span><span class="who">решение</span></span>.</p>
+    <p class="measure">Оценка — суждение приёмщика, а не измерение. Она подсказывает, чем и в каком порядке занять исполнителей, и <strong>не отменяет</strong> ни гейтов <code>blocked-by</code>, ни заморозки: единица на 2 точки, заблокированная нативной зависимостью, всё равно не берётся.</p>
+  </section>
+
+  <section>
+    <h2>Свободны<span class="qual">можно брать сейчас</span></h2>
+    <div class="board">
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/17">#17</a></p>
+        <div class="what">
+          <h3>Слить chunk_text и _chunk_payload — и только их</h3>
+          <p><code>HybridChunkerFacade</code> в слияние не входит: это заявленная заглушка под токен-ориентированный Docling-чанкер.</p>
+        </div>
+        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — spec-guard на недавно размороженном предмете; границы узкие, но ошибка тихая."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">агент · spec-guard</span></div>
+      </div>
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/18">#18</a></p>
+        <div class="what">
+          <h3>CasePipeline: пошаговый вход, ветвление маршрута из CLI в конвейер</h3>
+          <p>Унифицирована сборка, но не последовательность: <code>_cmd_process</code> кодирует ветвление <code>RouteTarget.CLOUD</code> у себя.</p>
+        </div>
+        <div class="side"><span class="pts" title="5/5 · Синьор · не параллелить — Структурная правка: ветвление маршрута переезжает из CLI в конвейер. Задевает и вход, и сборку."><span class="dots"><b>●●●●●</b></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">агент</span></div>
+      </div>
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/44">#44</a></p>
+        <div class="what">
+          <h3>Хвосты #41: падежи структурных слов и словоформы единиц денежной суммы</h3>
+          <p>Приёмка #41 закрыла ноты N-1/N-2 частично, остаток жил комментарием в закрытой задаче. Косвенные падежи («Приложении А.», «Разделе Б.») по-прежнему дают <code>PERSON</code> — приватность fail-closed, рвётся структура.</p>
+          <p><strong>Объём уточнён 03.09: разрыв по суммам шире, чем считали при заведении.</strong> Полные слова «тысяч», «миллионов», «миллиарда», «копеек» не покрывались ни в одной форме — работали только сокращения. «Взыскать 5 миллионов рублей» не давало ни одной находки. <code>detect_amounts</code> — единственный вход <code>amount_signal_present</code>, поэтому по маршрутизации это fail-open ровно на классе крупных сумм.</p>
+          <p><strong>Спека больше не блокирует:</strong> §2.2 <a href="../specs/30-anonymization-gate.md">30-anonymization-gate</a> правится владельцем 03.09 — перечень форм заменён основой со свободным окончанием, хвост <code>\b</code> на <code>(?!\w)</code>; в §9 добавлен нормативный тест. Агент приводит код к принятой формулировке. Третьим пунктом добавлено расхождение паттерна и <code>_AMOUNT_UNIT_MULTIPLIER</code>: карта ключуется точной строкой, поэтому расширение регулярки без её правки даёт <em>молчаливый</em> пропуск. Реестровый №19 переклассифицирован — решение владельца принято, остаток чисто кодовый.</p>
+        </div>
+        <div class="side"><span class="pts" title="4/5 · Синьор · можно параллелить — Две половины плюс карта множителей одним PR. Спека принята, ни с одной другой единицей не пересекается."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · парал.</span></span><span class="chip go">Свободна</span><span class="gate">агент · spec-guard · спека снята 03.09</span></div>
+      </div>
+
+      <div class="issue" data-freeze>
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/60">#60</a></p>
+        <div class="what">
+          <h3>Ступень 5.3: хвост, пересматривающий вердикт по-русски, проходит как безобидный</h3>
+          <p>Нота N-1 вердикта PR #57. Правило приёма хвоста считает словами управления вердиктом только латинские <code>pass</code>/<code>fail</code>/<code>verdict</code>, а промпт ступени русский: <code>{"verdict":"PASS",…}\nСтоп: нашёл остаточное ФИО</code> принимается. Докстринг обещает больше, чем делает код; промах направлен fail-open. Измеренный класс #33 (усечённый второй объект) не задет — он всегда начинается с <code>{</code>.</p>
+        </div>
+        <div class="side"><span class="pts" title="5/5 · Синьор · не параллелить — Замороженная _validate_response, spec-guard, плюс две реестровые строки одной единицей. Рвёт сопоставимость измерения, если тронуть мимо."><span class="dots"><b>●●●●●</b></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip crit">Заморозка</span><span class="chip go">Свободна</span><span class="gate">агент · spec-guard</span></div>
+      </div>
+
+
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/29">#29</a></p>
+        <div class="what">
+          <h3>Профиль локальной модели в комплекте доказательств: команды сбора в runbook</h3>
+          <p>Имя тега профилем не является: <code>:latest</code> — движущаяся цель. Runbook'и получают команды сбора <code>digest</code> + <code>num_ctx</code> + <code>num_gpu</code> и требование класть вывод в evidence. Готовый образец уже есть в комплекте прогона #27.</p>
+        </div>
+        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Команды сбора в пару runbook'ов, готовый образец уже есть в комплекте #27."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">агент · доки</span></div>
+      </div>
+
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/16">#16</a></p>
+        <div class="what">
+          <h3>CaseWorkspace — единственная власть над раскладкой диска</h3>
+          <p>Раскладка §11 живёт в трёх местах, одно из них — <code>_PURGE_DIRS</code> в удаляющем пути. Единственный кандидат консолидации, чья поломка бьёт в юридическую тайну. Разработка свободна. <strong>Мерж-гейт снят 02.09:</strong> пересдача F-3 состоялась (15 PASS / 16), решение владельца принято, волна слита в <code>master</code> (PR #47). Ограничение, стоявшее в этой карточке с 01.09, больше не действует.</p>
+        </div>
+        <div class="side"><span class="pts" title="5/5 · Синьор · не параллелить — Раскладка §11 в трёх местах, одно из них — _PURGE_DIRS в удаляющем пути. Поломка бьёт в юридическую тайну."><span class="dots"><b>●●●●●</b></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">агент · гейт снят 02.09</span></div>
+      </div>
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/34">#34</a></p>
+        <div class="what">
+          <h3>Где живёт измерительная оснастка зонда</h3>
+          <p>Решение владельца: <code>scripts/probe/</code> в репозитории или хост. От него зависит форма сдачи #30 и воспроизводимость будущих прогонов.</p>
+        </div>
+        <div class="side"><span class="pts none" title="Решение владельца — оценке по шкале не подлежит"><span class="dots"><i>○○○○○</i></span><span class="who">решение</span></span><span class="chip go">Свободна</span><span class="gate">владелец · решение</span></div>
+      </div>
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/15">#15</a></p>
+        <div class="what">
+          <h3>pravo.gov.ru: показать непустой references[] и обеспечить данными открытый вопрос №23</h3>
+          <p>Код и тест в <code>master</code>. Осталась сдаточная часть: живой запрос с непустым <code>references[]</code> и отметка в <code>open-questions</code> №23.</p>
+        </div>
+        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Код и тест в master; остаётся живой запрос и отметка в открытом вопросе №23."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">агент</span></div>
+      </div>
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/49">#49</a></p>
+        <div class="what">
+          <h3>Гейт заморозки: объяснение расхождения искать в блоке «Заморожено сейчас»</h3>
+          <p>Нота 1 приёмки PR #48. При расхождении полей <code>check_board_freeze</code> ищет объяснение по всему видимому тексту доски: когда поля разойдутся, гейт удовлетворится фразой из любого места, включая устаревшую от прошлого расхождения. Сузить до блока, из которого читаются оба поля.</p>
+        </div>
+        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #50, #64, #65."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">агент</span></div>
+      </div>
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/50">#50</a></p>
+        <div class="what">
+          <h3>Гейт чеклиста «Готово, когда»: сверять текст пунктов, а не только их число</h3>
+          <p>Нота 2 приёмки PR #48. Канон требует дословной копии чеклиста issue, но <code>check_pr_done_checklist</code> сверяет только количество чекбоксов — пересказанные своими словами пункты проходят. Дословность сегодня держится на глазах приёмщика.</p>
+        </div>
+        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #49, #64, #65."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">агент</span></div>
+      </div>
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/62">#62</a></p>
+        <div class="what">
+          <h3>Канон: бриф и AGENTS.md не знают vault-only единицу</h3>
+          <p>Канон получил третью форму закрытия единицы — vault-only (#58). Но два документа на <strong>штатном пути чтения разработчика</strong> формулируют маршрут безоговорочно: <code>dev-agent-brief.md</code> («сдача — это PR, а не сообщение в чат») и <code>AGENTS.md</code> («открываешь PR с <code>Closes #N</code>»). Разработчик читает бриф первым и упирается в запрет до того, как дойдёт до шага 3a. Та же конфигурация уже стоила одного круга — #56.</p>
+        </div>
+        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — По фразе в два документа плюс сверка четырёх мест на непротиворечивость."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">агент · документация</span></div>
+      </div>
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/63">#63</a></p>
+        <div class="what">
+          <h3>Дневной каталог graphify-out/ — слот на день, а не снимок</h3>
+          <p>Каталог <code>graphify-out/2026-ММ-ДД/</code> перезаписывается каждой пересборкой последним состоянием перед перезаписью — это поведение <code>backup_if_protected</code>, проверенное по исходникам. Ничего не сломано: класс файла определён верно (#46), барьер #53 это ловить не должен. Цена в словах: закоммиченный днём каталог сдвигается после коммита, и «снимок дня» читается как запись, которой он до полуночи не является. Развилка владельца: назвать мутацию нормой в <code>AGENTS.md</code> (рекомендация исполнителя) или коммитить после смены суток.</p>
+        </div>
+        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — После решения владельца — одна-две фразы в AGENTS.md."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">владелец · решение, затем доки</span></div>
+      </div>
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/64">#64</a></p>
+        <div class="what">
+          <h3>Гейт: таблица «Закрыто» на доске не сверяется</h3>
+          <p><code>vault.board-membership</code> сверяет с GitHub только <strong>открытые</strong> единицы. 02.09 из таблицы выпала issue #45 — слияние волны в <code>master</code>, крупнейшее событие суток; счётчик шапки говорил 13 закрытых, строк было 12, гейт при этом давал <code>RESULT: PASS</code>. Того же корня <code>check_accepted_log</code>: он обходит issue, <em>перечисленные на доске</em>, поэтому пропажу строки не ловит и он. Невидимое гейту не блокирует.</p>
+        </div>
+        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #49, #50, #65."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">агент · гейт приёмки</span></div>
+      </div>
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/65">#65</a></p>
+        <div class="what">
+          <h3>Гейт: ссылка на артефакт claude.ai в живом документе vault</h3>
+          <p>Опубликованный артефакт — снимок, который <strong>выглядит живым</strong>: пути в git нет, архивирование его не перенесёт, в <code>grep</code> он не попадёт, а ссылка кликабельна. 03.09 сессия открыла копию плана, замороженную 02.09, и читала её как текущее состояние. Правило записано в <code>issue-pr-workflow.md</code> («Что живое, а что снимок») тем же ходом; эта единица делает его исполняемым.</p>
+        </div>
+        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #49, #50, #64."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">агент · доки · гейт</span></div>
+      </div>
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/66">#66</a></p>
+        <div class="what">
+          <h3>Локальный skill archivist: аудит дрейфа, планы и безопасная архивация</h3>
+          <p>Второй REJECT 03.09. Круг 1: пункт чеклиста назвал <code>disable-model-invocation: true</code>, поля не было, <code>[x]</code> стоял. Круг 2: поле добавлено — и <code>quick_validate.py</code> стал валиться (<code>Unexpected key(s)</code>, exit 1): у skill-схемы Codex этого ключа нет, он из Claude Code, а <code>.agents/</code> Claude Code не читает. Противоречие закрыли правкой чеклиста самой issue — исчез пункт про валидатор. Развилка владельца: механизм <code>agents/openai.yaml</code> и убрать поле, либо skill переезжает в <code>.claude/skills/</code>, где поле настоящее.</p>
+        </div>
+        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Инструкция skill плюс одна строка frontmatter; кода и спек не касается."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">владелец · решение о механизме, затем PR #67</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>За гейтами<span class="qual">условие снятия названо в каждой</span></h2>
+    <div class="board">
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/30">#30</a></p>
+        <div class="what">
+          <h3>Инструментовка прогона: JSONL по чанку и небуферизованный stdout</h3>
+          <p>Не наблюдаемость — выходные переменные #28: <code>validation</code>, primary/repair, <code>finding_count</code>, <code>residual_count</code> в момент запроса, а не в конце хода.</p>
+        </div>
+        <div class="side"><span class="pts" title="4/5 · Синьор · можно параллелить — Инструментовка не должна возмущать измерение — это и есть сложность. За гейтом #34."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · парал.</span></span><span class="chip hold">Ждёт</span><span class="gate">blocked-by #34</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Backlog<span class="qual">не стартовать без явного решения владельца</span></h2>
+    <div class="board">
+
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/19">#19</a></p>
+        <div class="what">
+          <h3>EvalHarness и два хранилища решений — планировать, не делать</h3>
+          <p>Два предусловия: отложенный №20 про область хеширования golden set и сверка пункта B с <code>autonomy-roadmap</code> H-3.</p>
+        </div>
+        <div class="side"><span class="pts" title="5/5 · Синьор · не параллелить — Слой eval целиком, два открытых предусловия. Backlog."><span class="dots"><b>●●●●●</b></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip off">Backlog</span><span class="gate">предусловия открыты</span></div>
+      </div>
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/31">#31</a></p>
+        <div class="what">
+          <h3>HTML-панель исполнения прогона на probka-llm</h3>
+          <p>Открытый блокер не двигает; наблюдаемость закрыта сайдкаром. Требования сохранены целиком: тейлнет-бинд, Basic-auth, SSE, невмешательство в измерение.</p>
+        </div>
+        <div class="side"><span class="pts" title="4/5 · Синьор · можно параллелить — Сайдкар: тейлнет-бинд, Basic-auth, SSE. Объёмно, но полностью изолировано."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · парал.</span></span><span class="chip off">Backlog</span><span class="gate">после сдвига блокера</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>Закрыто<span class="qual">вердикты — в decisions/acceptance-log.md</span></h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Issue</th><th>Что закрыто</th><th>Вердикт</th></tr></thead>
+        <tbody>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/59">#59</a></td><td>Барьер <code>repo.graphify-untracked</code> не принимает транзиентные <code>.rebuild.lock</code> и <code>.graph.tmp.json</code> за накапливаемые данные: их граница остаётся в <code>.gitignore</code>, а рядом лежащий журнал по-прежнему валит гейт</td><td>ACCEPTED · 03.09 — PR #61, merge <code>5f1ceab</code></td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/58">#58</a></td><td>Канон описывает vault-only единицу: признак пустого репо-дифа, предъявление комментарием с хэшем/статами/чеклистом, приёмка без PR-контекста; смешанный диф остаётся обычной единицей</td><td>ACCEPTED · 03.09 — vault <code>7b02ad1</code></td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/33">#33</a></td><td>Ступень 5.3: правило приёма ответа с хвостом — schema-valid объект принимается, если хвост не может начать второй structured output и пересмотреть вердикт; усечённый второй объект и текстовый пересмотр остаются fail-closed</td><td>ACCEPTED WITH NOTES · 03.09 — нота в #60</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/56">#56</a></td><td>Строка 67 <code>issue-pr-workflow.md</code> знает исключение и отсылает к канону; все четыре места про «<code>graphify-out/</code> в PR» ведут к шагу 4 протокола. Vault-only единица: закрыта коммитом vault-репо <code>ae7be9a</code>, без PR</td><td>ACCEPTED WITH NOTES · 03.09 — нота в #58</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/53">#53</a></td><td>Механический барьер <code>repo.graphify-untracked</code> в <code>acceptance_check.py</code>: вердикт приёмки невозможен, пока под <code>graphify-out/</code> есть untracked; границу класса читает из политики игнора, а не из списка</td><td>ACCEPTED WITH NOTES · 03.09</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/52">#52</a></td><td>Шаг 4 <code>acceptance-protocol.md</code> и <code>AGENTS.md</code> знают узкое исключение: issue, чей предмет сами артефакты <code>graphify-out/</code>, при отдельном коммите и проверке объёма с исключением каталога</td><td>ACCEPTED WITH NOTES · 03.09 — нота в #56</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/46">#46</a></td><td>Решение владельца — ответ (а): журнал <code>memory/</code>, уроки <code>LESSONS.md</code>, learning-состояние и дневные снимки объявлены несущими данными и живут в гите; в игноре только <code>cache/</code> и <code>cost.json</code>; <code>AGENTS.md</code> разделил два класса файлов</td><td>ACCEPTED WITH NOTES · 03.09 — ноты в #52 и #53</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/45">#45</a></td><td><code>wave-anonymize-convergence</code> слита в <code>master</code> merge-коммитом <code>f23b396</code> — гейт issue #18 и гейт беты сняты; нового кода PR не нёс</td><td>ACCEPTED · 02.09</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/39">#39</a></td><td>Чеклист «Готово, когда» воспроизводится в теле PR; доска держит «Держатель заморозки» и «Следующий шаг» как два поля; оба правила — исполняемые проверки</td><td>ACCEPTED WITH NOTES · 02.09 — ноты в #49 и #50</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/41">#41</a></td><td>§2.2: ветвь городского телефона, сужение ФИО с инициалами, словоформы рубля — <strong>частично</strong>; остаток вынесен в #44</td><td>ACCEPTED WITH NOTES · 02.09</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/14">#14</a></td><td>Ступень 5.3: остаточная утечка закрыта, отложенные №17 и №18 сняты, пересдача F-3 15 PASS / 16</td><td>ACCEPTED WITH NOTES · 02.09</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/37">#37</a></td><td>Якорь заморозки <code>AGENTS.md</code> §7 переведён с #28 на #14 перед закрытием #28</td><td>ACCEPTED · 01.09</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/28">#28</a></td><td>Ступень 5.3: повторяемость и природа отказа — 12 чанков × 5 прогонов; развилка названа</td><td>ACCEPTED WITH NOTES · 01.09</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/35">#35</a></td><td>Исполняемый гейт приёмки вместо прозы: <code>scripts/acceptance_check.py</code>, CI и сокращённый канон</td><td>ACCEPTED WITH NOTES · 01.09</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/32">#32</a></td><td>Якорь заморозки <code>AGENTS.md</code> §7 — поглощена #35</td><td>Поглощена · 01.09</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/27">#27</a></td><td>Пересъёмка ступени 5.3 на профиле <code>qwen3-8b-24k</code>, все 16 ходов</td><td>ACCEPTED WITH NOTES · 01.09</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/26">#26</a></td><td>Фактическое <code>num_ctx</code> базы F-3 и рабочего профиля</td><td>ACCEPTED WITH NOTES · 01.09</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/24">#24</a></td><td><code>.env.example</code> и runbook'и синхронизированы с профилем локальной LLM</td><td>ACCEPTED · 31.08</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/13">#13</a></td><td>Зонд 2 — ступень GATE 5.3, ноль правок кода</td><td>ACCEPTED WITH NOTES · 01.09</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/12">#12</a></td><td>Синхронизация живых доков + три строки в реестр отложенных</td><td>ACCEPTED · 31.08</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Цепочка наследования истины<span class="qual">внутри оси нижний уступает верхнему; между осями норма выше состояния</span></h2>
+    <div class="prose">
+      <p><strong>Ось А — норма: что система обязана делать.</strong></p>
+      <ul>
+        <li><code>specs/</code> в vault — <strong>заморожены, высшая власть.</strong> Направление власти: спека → код (<code>AGENTS.md</code> §1). Пробел или противоречие поднимается заметкой в <code>decisions/</code>, а не «чинится» в коде.</li>
+        <li><code>decisions/</code> — решения владельца, вердикты приёмки <code>acceptance-log.md</code>, реестры <code>deferred-actions.md</code> и <code>open-questions.md</code>. Применяют и уточняют норму, спеке не противоречат.</li>
+        <li>Код репозитория — следует за первыми двумя. Расхождение код ↔ спека есть дефект кода.</li>
+      </ul>
+      <p><strong>Ось Б — состояние работ: что делается сейчас.</strong></p>
+      <ul>
+        <li><strong>GitHub</strong> — тела issue, метки, нативные зависимости <code>blocked by</code> / <code>blocks</code>. <strong>Источник истины по состоянию очереди.</strong></li>
+        <li><strong>Эта доска</strong> — человеческий вид того же. Правится вручную приёмщиком, поэтому может отстать; при расхождении права GitHub.</li>
+        <li>Датированные разборы — <code>notes/review-*.html</code>, <code>notes/queue-recheck-*</code>. Несут основания и обоснование порядка. <strong>Вслед за очередью не обновляются.</strong></li>
+        <li><code>notes/archive/</code> — замороженные снимки прошлых состояний. Только для расследования.</li>
+      </ul>
+      <p><strong>Стык осей.</strong> Вердикт в <code>decisions/acceptance-log.md</code> — единственное, что переводит работу из «сделано» в «принято», и он же держатель действующих заморозок (<code>AGENTS.md</code> §7). Issue закрывается по вердикту, а не вердикт пишется по закрытой issue.</p>
+    </div>
+  </section>
+
+
+  <section>
+    <h2>Пайплайн исполнения issue<span class="qual">рекомендованный и две альтернативы, каждая проверена на этом проекте</span></h2>
+    <p class="measure">Все три варианта проходят одни и те же станции — issue, ветка, PR, приёмка холодной сессией, вердикт в <code>acceptance-log.md</code>. Отличаются они одним: <strong>где стоит следующая работа, пока предыдущая не принята.</strong> Это и есть предмет выбора; всё остальное совпадает.</p>
+
+    <div class="pipes">
+
+      <div class="pipe rec">
+        <div class="pipe-head">
+          <h3>А · Последовательный</h3>
+          <span class="pipe-badge">по умолчанию</span>
+        </div>
+        <p>Одна issue за раз. Следующая не начинается, пока текущая не принята вердиктом.</p>
+        <figure>
+          <svg viewBox="0 0 660 132" role="img" aria-label="Последовательный пайплайн: issue, ветка, PR, холодная приёмка, вердикт, master — и только затем следующая issue">
+            <defs>
+              <marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0 0.5 L7.5 4 L0 7.5 z" fill="currentColor"/>
+              </marker>
+            </defs>
+            <g>
+              <rect class="dg-box-a" x="4"   y="34" width="112" height="42" rx="3"/>
+              <text class="dg-t" x="60"  y="53">issue #N</text>
+              <text class="dg-s" x="60"  y="68">метка agent</text>
+
+              <rect class="dg-box"   x="152" y="34" width="112" height="42" rx="3"/>
+              <text class="dg-t" x="208" y="53">ветка + PR</text>
+              <text class="dg-s" x="208" y="68">Closes #N</text>
+
+              <rect class="dg-box"   x="300" y="34" width="112" height="42" rx="3"/>
+              <text class="dg-t" x="356" y="53">приёмка</text>
+              <text class="dg-s" x="356" y="68">холодная сессия</text>
+
+              <rect class="dg-box"   x="448" y="34" width="112" height="42" rx="3"/>
+              <text class="dg-t" x="504" y="53">вердикт</text>
+              <text class="dg-s" x="504" y="68">acceptance-log</text>
+
+              <rect class="dg-box-a" x="596" y="34" width="60" height="42" rx="3"/>
+              <text class="dg-t" x="626" y="59">#N+1</text>
+
+              <path class="dg-a" d="M116 55 H146" marker-end="url(#ar)"/>
+              <path class="dg-a" d="M264 55 H294" marker-end="url(#ar)"/>
+              <path class="dg-a" d="M412 55 H442" marker-end="url(#ar)"/>
+              <path class="dg-a" d="M560 55 H590" marker-end="url(#ar)"/>
+
+              <text class="dg-l" x="131" y="27">берём</text>
+              <text class="dg-l" x="279" y="27">сдаём</text>
+              <text class="dg-l" x="427" y="27">проверка</text>
+              <text class="dg-l" x="575" y="27">старт</text>
+              <text class="dg-l" x="330" y="103">весь путь одной issue — ни одна следующая не начата</text>
+              <path class="dg-a" d="M60 84 V94 H626 V84" stroke-dasharray="3 3"/>
+            </g>
+          </svg>
+          <figcaption>Между «сдаём» и «стартом» нет ничего параллельного: пунктир охватывает весь путь одной единицы.</figcaption>
+        </figure>
+        <p class="verdict"><b>Чем платим:</b> простой разработчика на время приёмки. <b>Что получаем:</b> REJECT всегда откатывает ровно одну единицу, и §8 «не рефакторить непринятую ветку» соблюдается по построению. <b>Когда брать:</b> всегда, если нет причины не брать.</p>
+      </div>
+
+      <div class="pipe">
+        <div class="pipe-head">
+          <h3>Б · Конвейер с параллельной приёмкой</h3>
+          <span class="pipe-badge alt">только для доказанно независимых</span>
+        </div>
+        <p>Пока приёмщик проверяет #N, разработчик берёт #N+1. Выигрыш — время приёмки; цена — она же становится риском.</p>
+        <figure>
+          <svg viewBox="0 0 660 176" role="img" aria-label="Конвейер: разработка #N+1 идёт параллельно приёмке #N; при REJECT работа #N+1 стоит на непринятом коде">
+            <g>
+              <text class="dg-s" x="52" y="24" style="text-anchor:start">разработка</text>
+              <rect class="dg-box-a" x="4"   y="32" width="150" height="40" rx="3"/>
+              <text class="dg-t" x="79"  y="56">#N · ветка + PR</text>
+
+              <rect class="dg-box-a" x="240" y="32" width="150" height="40" rx="3"/>
+              <text class="dg-t" x="315" y="56">#N+1 · ветка</text>
+
+              <rect class="dg-box"   x="476" y="32" width="150" height="40" rx="3"/>
+              <text class="dg-t" x="551" y="51">#N+2 · ветка</text>
+              <text class="dg-s" x="551" y="65">и так далее</text>
+
+              <text class="dg-s" x="52" y="107" style="text-anchor:start">приёмка</text>
+              <rect class="dg-box"   x="140" y="114" width="150" height="40" rx="3"/>
+              <text class="dg-t" x="215" y="133">приёмка #N</text>
+              <text class="dg-s" x="215" y="147">идёт одновременно</text>
+
+              <rect class="dg-box"   x="376" y="114" width="150" height="40" rx="3"/>
+              <text class="dg-t" x="451" y="138">приёмка #N+1</text>
+
+              <path class="dg-a" d="M154 52 H234" marker-end="url(#ar)"/>
+              <path class="dg-a" d="M390 52 H470" marker-end="url(#ar)"/>
+              <path class="dg-a" d="M120 72 L200 110" marker-end="url(#ar)"/>
+              <path class="dg-a" d="M356 72 L436 110" marker-end="url(#ar)"/>
+
+              <path class="dg-a-x" d="M255 114 L300 76" marker-end="url(#ar)"/>
+              <text class="dg-x" x="325" y="96">REJECT #N обнуляет и #N+1</text>
+            </g>
+          </svg>
+          <figcaption>Красный пунктир — единственная стрелка, которой нет в варианте А: обратный ход от приёмки к уже начатой следующей единице.</figcaption>
+        </figure>
+        <p class="verdict"><b>Чем платим:</b> при REJECT #N ветка #N+1 стоит на непринятом коде — пересдавать придётся не то, что измеряли (<code>AGENTS.md</code> §8). <b>Условие применимости:</b> #N+1 не касается ни одного файла из #N и не имеет с ней нативной связи <code>blocked by</code>. Проверяется до старта, а не после. <b>Когда брать:</b> когда простой реально дорог и независимость доказана, а не предположена.</p>
+      </div>
+
+      <div class="pipe">
+        <div class="pipe-head">
+          <h3>В · Волна</h3>
+          <span class="pipe-badge no">был применён — с известной ценой</span>
+        </div>
+        <p>Несколько связанных единиц собираются на одной ветке, приёмка и слияние — один раз. Так делалась <code>wave-anonymize-convergence</code>: 32 файла, +4011 строк, одна приёмка.</p>
+        <figure>
+          <svg viewBox="0 0 660 168" role="img" aria-label="Волна: несколько issue собираются на одной ветке, одна приёмка и одно слияние; правила master невидимы на ветке волны">
+            <g>
+              <rect class="dg-box" x="4"  y="14"  width="104" height="34" rx="3"/>
+              <text class="dg-t" x="56" y="35">issue #a</text>
+              <rect class="dg-box" x="4"  y="60"  width="104" height="34" rx="3"/>
+              <text class="dg-t" x="56" y="81">issue #b</text>
+              <rect class="dg-box" x="4"  y="106" width="104" height="34" rx="3"/>
+              <text class="dg-t" x="56" y="127">issue #c</text>
+
+              <rect class="dg-box-x" x="186" y="52" width="150" height="50" rx="3"/>
+              <text class="dg-t" x="261" y="72">ветка волны</text>
+              <text class="dg-s" x="261" y="88">живёт неделями</text>
+
+              <rect class="dg-box" x="384" y="52" width="122" height="50" rx="3"/>
+              <text class="dg-t" x="445" y="72">одна приёмка</text>
+              <text class="dg-s" x="445" y="88">весь диф разом</text>
+
+              <rect class="dg-box-a" x="554" y="52" width="102" height="50" rx="3"/>
+              <text class="dg-t" x="605" y="82">master</text>
+
+              <path class="dg-a" d="M108 31  L180 62"  marker-end="url(#ar)"/>
+              <path class="dg-a" d="M108 77  H180"     marker-end="url(#ar)"/>
+              <path class="dg-a" d="M108 123 L180 92"  marker-end="url(#ar)"/>
+              <path class="dg-a" d="M336 77 H378"      marker-end="url(#ar)"/>
+              <path class="dg-a" d="M506 77 H548"      marker-end="url(#ar)"/>
+
+              <path class="dg-a-x" d="M605 108 V138 H261 V106" marker-end="url(#ar)"/>
+              <text class="dg-x" x="433" y="153">правила master (§7, гейт приёмки) не доезжают до ветки сами</text>
+            </g>
+          </svg>
+          <figcaption>Красный контур — ветка, на которой правила из <code>master</code> отсутствуют, пока их не влить обратным ходом (нижняя стрелка).</figcaption>
+        </figure>
+        <p class="verdict"><b>Чем заплатили фактически:</b> <code>AGENTS.md</code> §7–§9 и <code>acceptance_check.py</code> жили на <code>master</code> и были невидимы на ветке волны — гейт горел красным у любого, кто его там запускал, независимо от предмета своей единицы. Ревизия 02.09 нашла это; лечится шагом «слить master в ветку» в начале волны, а не в конце. <b>Когда брать:</b> когда единицы связаны идущим измерением и разрывать их нельзя. Тогда — с обязательным обратным вливанием <code>master</code> при каждом изменении процессных правил.</p>
+      </div>
+
+    </div>
+
+    <div class="callout">
+      <h3>Как выбрать за тридцать секунд</h3>
+      <p>Следующая единица трогает файлы текущей или связана с ней <code>blocked by</code> — <strong>А</strong>. Не трогает и не связана, а простой дорог — <strong>Б</strong>. Несколько единиц держит одно измерение, которое нельзя разорвать — <strong>В</strong>, и тогда первым коммитом ветки идёт слияние <code>master</code>.</p>
+      <p>Во всех трёх вердикт в <code>decisions/acceptance-log.md</code> пишет холодная сессия, а не та, что писала код. Это не свойство пайплайна, а условие, при котором любой из них работает.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Как читать эту доску</h2>
+    <div class="prose">
+      <ul>
+        <li><strong>Одна issue за раз.</strong> Взять единицу с меткой <code>agent</code>, проверить, что её гейт снят и метки <code>backlog</code> нет, сделать ветку <code>issue-&lt;номер&gt;-&lt;слаг&gt;</code>, открыть PR с <code>Closes #N</code>. Объём issue не расширяется: увиденное рядом — следующая issue.</li>
+        <li><strong>Тела issue содержат только текущее состояние.</strong> Истории в них нет намеренно. Она — в архиве, ссылка ниже.</li>
+        <li><strong>Гейты между issue живут в нативных зависимостях GitHub</strong> (<code>blocked by</code> / <code>blocks</code>), а не текстом в теле: их видно в интерфейсе и в API, и они не требуют ручного обновления при закрытии блокера. Текстом в теле остаются только гейты, которые связью между issue не выражаются — мерж-гейт #16, состояние ветки у #18, строки реестра у #19, приоритет у #31; в каждом таком теле сказано, почему. Эта доска — их человеческий вид; при расхождении авторитетен GitHub.</li>
+        <li><strong>Метка <code>spec-guard</code></strong> означает, что затронута область замороженного решения или идущего измерения: в теле PR обязан быть явный результат сверки со спекой. «Поведение не меняется» аргументом не считается.</li>
+        <li><strong>«Держатель заморозки» и «Следующий шаг» — разные поля.</strong> Первое читается из последнего вердикта в <code>decisions/acceptance-log.md</code>; второе — из очереди GitHub: свободная <code>agent</code>-issue без незакрытых <code>blockedBy</code> и без <code>backlog</code>. Одно из другого не выводится, даже когда номера сейчас совпадают.</li>
+        <li><strong>У каждой карточки есть оценка.</strong> Пять точек — уровень исполнителя, слово рядом — можно ли вести единицу параллельно с другой. Шкала целиком в разделе «Оценка единицы» выше. <strong>При переписывании доски оценки переносятся вместе с карточками</strong>: они живут в блоке <code>.side</code>, рядом с чипом состояния, и восстановить их по номеру issue нельзя — это суждение, а не выводимое поле.</li>
+      <li><strong>Держатель заморозки помечен в двух местах.</strong> В сводке шапки его номер идёт в рамке (<span class="freeze-mark">#60</span>), в списке карточек — на цветном фоне с чипом <span class="chip crit">Заморозка</span>. Блок «Заморожено сейчас» объясняет, что именно заморожено; две пометки нужны затем, чтобы единицу нельзя было взять вслепую ни из сводки, ни из списка, не дочитав до блока. Отличие держится не только цветом: в сводке рамка и жирность, на карточке — слово в чипе.<br><strong>При переписывании доски переносятся обе пометки, вместе с полем «Держатель заморозки».</strong> На карточке пометка ставится атрибутом <code>data-freeze</code>, а не классом: <code>check_board_counters</code> считает буквальную строку <code>class="issue"</code>, и модификатор в классе сломал бы счётчик молча. В сводке обёртка безопасна — гейт ищет там github-ссылки, а их в строке нет.</li>
+      <li><strong>Нумерация.</strong> <code>#12</code> — только issue или PR на GitHub. Отложенные пункты и открытые вопросы пишутся через <code>№</code> с названием реестра рядом.</li>
+        <li><strong>Доску правит приёмщик</strong>, не разработчик.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <p>Иерархия источников — раздел «Цепочка наследования истины» выше. Коротко: по состоянию очереди права <a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues">GitHub</a>, эта доска — его ручной человеческий вид.</p>
+    <p>Порядок и формулировки в текущей редакции обоснованы разбором <code>notes/queue-recheck-2026-09-01.md</code> (агентская редакция, авторитетная) и <code>notes/queue-recheck-2026-09-01.html</code> (человеческая).</p>
+    <p>Историческое состояние очереди до перестройки 01.09 — <code>notes/archive/issue-queue-2026-09-01/</code>: тела всех issue в прежней редакции, машинный снимок и копия прежней доски.</p>
+    <p>Канон механизма — <code>notes/issue-pr-workflow.md</code>. Приёмка — <code>notes/acceptance-protocol.md</code>, раздел «Приёмка PR».</p>
+  </footer>
+
+</div>
+</body>
+</html>
