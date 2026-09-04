@@ -63,8 +63,8 @@
   </header>
   <main class="grid">
     <a class="card" href="probka-legal-agent-status/">
-      <img src="assets/probka-legal-agent-status.webp" alt="AM Legal Agent — робот-юрист за работой" width="800" height="450" loading="lazy" decoding="async"
-           data-variants='[{"src":"assets/probka-legal-agent-status.webp","alt":"AM Legal Agent — робот-юрист за работой"},{"src":"assets/probka-legal-agent-status-2.webp","alt":"AM Legal Agent — робот-юрист за работой"}]'>
+      <img src="assets/probka-legal-agent-status/01.webp" alt="AM Legal Agent — робот-юрист за работой" width="800" height="450" loading="lazy" decoding="async"
+           data-card-assets="probka-legal-agent-status">
       <div class="body">
         <h2>AM Legal Agent — доска задач</h2>
         <p>Рабочая доска задач и статусов проекта.</p>
@@ -75,16 +75,28 @@
   <footer>Обновляется автоматически · GitHub Pages</footer>
 </div>
 <script>
-  // Каждая карточка показывает строго одну картинку — выбирается случайно при каждой загрузке страницы.
-  document.querySelectorAll('img[data-variants]').forEach(function (img) {
-    try {
-      var variants = JSON.parse(img.dataset.variants);
-      if (!variants.length) return;
-      var pick = variants[Math.floor(Math.random() * variants.length)];
-      img.src = pick.src;
-      img.alt = pick.alt;
-    } catch (e) { /* остаётся src по умолчанию */ }
-  });
+  // Каждая карточка показывает строго одну картинку, выбираемую случайно при каждой загрузке
+  // страницы (без памяти о прошлом выборе). Список картинок не ведётся: папка карточки
+  // перечитывается через GitHub Contents API, поэтому в ротацию попадает всё, что в ней лежит.
+  // Если API недоступен (лимит, офлайн) — остаётся src по умолчанию.
+  (function () {
+    var API = 'https://api.github.com/repos/DeepSpaceWombat/projects-status/contents/';
+    var IMG_RE = /\.(webp|png|jpe?g|gif|avif|svg)$/i;
+    document.querySelectorAll('img[data-card-assets]').forEach(function (img) {
+      var dir = 'assets/' + img.dataset.cardAssets;
+      fetch(API + dir, { headers: { 'Accept': 'application/vnd.github+json' } })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (entries) {
+          var files = Array.isArray(entries)
+            ? entries.filter(function (e) { return e.type === 'file' && IMG_RE.test(e.name); })
+            : [];
+          if (!files.length) return;
+          var pick = files[Math.floor(Math.random() * files.length)];
+          img.src = dir + '/' + pick.name;
+        })
+        .catch(function () { /* остаётся src по умолчанию */ });
+    });
+  })();
 </script>
 </body>
 </html>
