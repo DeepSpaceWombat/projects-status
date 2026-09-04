@@ -251,32 +251,436 @@
   .pipe .verdict { font-size: var(--step--1); border-top: 1px solid var(--rule);
     padding-top: 11px; color: var(--ink-soft); }
   .pipe .verdict b { color: var(--ink); }
-  .dg-box { fill: var(--surface); stroke: currentColor; stroke-width: 1.2; }
-  .dg-box-a { fill: var(--accent-tint); stroke: var(--accent); stroke-width: 1.4; }
-  .dg-box-x { fill: var(--crit-tint); stroke: var(--crit); stroke-width: 1.4; }
-  .dg-t { font: 600 12px "Inter", system-ui, sans-serif; fill: var(--ink);
+  /* ── Вес диаграмм ────────────────────────────────────────────────────────
+     Схемы читаются как текст, а не как графика: рамка — волосяная линия без
+     заливки, вся разница между узлами держится цветом обводки и весом шрифта.
+     Заливку сохраняет только узел-источник (-a): она несёт смысл «высшая
+     власть», а не украшение. Геометрия SVG при облегчении не менялась. */
+  .dg-box { fill: none; stroke: var(--rule-strong); stroke-width: 0.9; }
+  .dg-box-a { fill: var(--accent-tint); stroke: var(--accent); stroke-width: 1; }
+  .dg-box-x { fill: none; stroke: var(--crit); stroke-width: 1; }
+  .dg-t { font: 500 11.5px "Inter", system-ui, sans-serif; fill: var(--ink);
     text-anchor: middle; }
-  .dg-s { font: 500 10.5px "Inter", system-ui, sans-serif; fill: var(--ink-faint);
+  .dg-s { font: 400 10px "Inter", system-ui, sans-serif; fill: var(--ink-faint);
     text-anchor: middle; }
-  .dg-l { font: 500 10.5px "Inter", system-ui, sans-serif; fill: var(--ink-soft);
+  .dg-l { font: 400 10px "Inter", system-ui, sans-serif; fill: var(--ink-faint);
     text-anchor: middle; }
-  .dg-x { font: 600 10.5px "Inter", system-ui, sans-serif; fill: var(--crit);
-    text-anchor: middle; }
-  .dg-a { stroke: currentColor; stroke-width: 1.2; fill: none; }
-  .dg-a-x { stroke: var(--crit); stroke-width: 1.3; fill: none;
-    stroke-dasharray: 4 3; }
+  .dg-x { font: 500 10px "Inter", system-ui, sans-serif; fill: var(--crit);
+    text-anchor: middle; opacity: 0.85; }
+  .dg-a { stroke: var(--rule-strong); stroke-width: 0.9; fill: none; }
+  .dg-a-x { stroke: var(--crit); stroke-width: 0.9; fill: none;
+    stroke-dasharray: 3 3; opacity: 0.75; }
+
+  /* ── Фильтры дорожки «Свободны» ──────────────────────────────────────────
+     Панель строится скриптом из самих карточек: уровень читается из
+     .pts .who, состояние — из .chip, метки — из .gate. Разметку карточек
+     трогать не нужно, поэтому новая карточка попадает в фильтры сама.
+     В разметке панели намеренно нет ни строки class="issue", ни ссылок
+     github.com/.../issues/N: первое считает check_board_counters,
+     второе — board_open_issue_numbers в scripts/acceptance_check.py. */
+  .fbar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 4px; padding: 0.55rem 0.6rem;
+  }
+  .fbar .fsearch { flex: 1 1 13rem; min-width: 9rem; position: relative; display: flex; }
+  .fbar .fsearch input {
+    width: 100%; font: inherit; font-size: var(--step--1);
+    color: var(--ink); background: var(--ground);
+    border: 1px solid var(--rule-strong); border-radius: 4px;
+    padding: 0.34rem 0.6rem;
+  }
+  .fbar .fsearch input::placeholder { color: var(--ink-faint); }
+  .fbar .fsearch input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .fwrap { position: relative; }
+  .fbtn {
+    font: inherit; font-size: var(--step--1); color: var(--ink);
+    background: var(--ground); border: 1px solid var(--rule-strong);
+    border-radius: 4px; padding: 0.34rem 0.6rem; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;
+  }
+  .fbtn:hover { border-color: var(--ink-faint); }
+  .fbtn[aria-expanded="true"] { background: var(--accent-tint); border-color: var(--accent); color: var(--accent); }
+  .fbtn .caret { font-size: 0.6rem; color: var(--ink-faint); }
+  .fbtn[aria-expanded="true"] .caret { color: var(--accent); }
+  .fbtn .cnt {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.625rem;
+    background: var(--accent); color: var(--surface);
+    border-radius: 999px; padding: 0 0.35rem; line-height: 1.5;
+  }
+  .fspacer { flex: 1 1 auto; }
+  .fcount {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.688rem;
+    color: var(--ink-faint); letter-spacing: 0.04em; white-space: nowrap;
+  }
+  .freset {
+    font: inherit; font-size: var(--step--1); color: var(--crit);
+    background: none; border: 0; padding: 0.34rem 0.2rem; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 2px;
+  }
+  .freset[hidden] { display: none !important; }
+
+  .fmenu {
+    position: absolute; z-index: 30; top: calc(100% + 6px); left: 0;
+    width: min(22rem, 84vw); background: var(--surface);
+    border: 1px solid var(--rule-strong); border-radius: 6px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.16);
+    display: flex; flex-direction: column; max-height: 24rem; overflow: hidden;
+  }
+  .fmenu.right { left: auto; right: 0; }
+  .fmenu h4 {
+    margin: 0; font-family: "IBM Plex Sans", sans-serif; font-size: var(--step--1);
+    font-weight: 600; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--rule);
+  }
+  .fmenu .fmsearch { padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--rule); }
+  .fmenu .fmsearch input {
+    width: 100%; font: inherit; font-size: var(--step--1); color: var(--ink);
+    background: var(--ground); border: 1px solid var(--rule-strong);
+    border-radius: 4px; padding: 0.3rem 0.5rem;
+  }
+  .fmenu .fmsearch input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .fmenu .flist { overflow-y: auto; }
+  .fmenu .fgroup {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.625rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint);
+    padding: 0.45rem 0.75rem; background: var(--ground);
+    border-bottom: 1px solid var(--rule); position: sticky; top: 0;
+  }
+  .fopt {
+    display: grid; grid-template-columns: 1.05rem 0.6rem 1fr; gap: 0 0.55rem;
+    align-items: start; width: 100%; text-align: left;
+    padding: 0.55rem 0.75rem; border: 0; border-bottom: 1px solid var(--rule);
+    background: none; font: inherit; color: var(--ink); cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+  .fopt:hover { background: var(--ground); }
+  .fopt[aria-pressed="true"] { background: var(--accent-tint); border-left-color: var(--accent); }
+  .fopt .box {
+    width: 1.05rem; height: 1.05rem; margin-top: 0.1rem; border-radius: 3px;
+    border: 1px solid var(--rule-strong); background: var(--surface);
+    display: grid; place-items: center; font-size: 0.7rem; line-height: 1; color: var(--surface);
+  }
+  .fopt[aria-pressed="true"] .box { background: var(--accent); border-color: var(--accent); }
+  .fopt .dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; margin-top: 0.36rem; background: var(--ink-faint); }
+  .fopt .nm { font-size: var(--step--1); font-weight: 600; display: flex; gap: 0.5rem; align-items: baseline; }
+  .fopt .nm .n { font-family: "IBM Plex Mono", monospace; font-weight: 400; color: var(--ink-faint); font-size: 0.688rem; }
+  .fopt .ds { grid-column: 3; font-size: 0.75rem; color: var(--ink-soft); line-height: 1.4; }
+  .fopt[data-empty="1"] { opacity: 0.45; }
+  .fmenu .fnone { padding: 0.7rem 0.75rem; font-size: var(--step--1); color: var(--ink-faint); }
+  .fmenu .ffoot { border-top: 1px solid var(--rule); padding: 0.45rem 0.6rem; display: flex; justify-content: flex-end; }
+  .fmenu .ffoot button { font: inherit; font-size: var(--step--1); background: none; border: 0; color: var(--accent); cursor: pointer; }
+
+  .fempty {
+    border: 1px dashed var(--rule-strong); border-radius: 4px;
+    padding: 1.4rem 1rem; text-align: center;
+    font-size: var(--step--1); color: var(--ink-faint);
+  }
+  .fempty[hidden] { display: none !important; }
+  @media (max-width: 34rem) {
+    .fbar .fsearch { flex-basis: 100%; }
+    .fmenu { width: min(20rem, 88vw); }
+  }
+
+  /* ── Единый блок очереди: три дорожки под одной рамкой ────────────────────
+     Дорожки остаются отдельными секциями намеренно: check_board_counters
+     считает карточки посекционно и сверяет с тремя числами сводки шапки —
+     слияние секций в одну повалило бы гейт. Объединение здесь визуальное. */
+  .lanes {
+    background: var(--surface); border: 1px solid var(--rule-strong);
+    border-radius: 6px; overflow: visible;
+    display: flex; flex-direction: column; gap: 2.5rem;
+    padding: 0 clamp(1rem, 2.5vw, 1.75rem) clamp(1.4rem, 3vw, 2rem);
+  }
+  .lanes > section { gap: 1rem; }
+  .lanes > section[hidden] { display: none !important; }
+  .lanes > section > h2 { border-bottom-width: 1px; border-bottom-color: var(--rule-strong); }
+  .lanes .fbar {
+    position: sticky; top: 0; z-index: 20;
+    margin: 0 clamp(-1.75rem, -2.5vw, -1rem);
+    border: 0; border-bottom: 1px solid var(--rule); border-radius: 6px 6px 0 0;
+    padding: 0.6rem clamp(1rem, 2.5vw, 1.75rem);
+  }
+
+  /* ── Переключатель темы ───────────────────────────────────────────────── */
+  .topline { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .themesw { display: inline-flex; border: 1px solid var(--rule-strong); border-radius: 999px; overflow: hidden; background: var(--surface); }
+  .themesw button {
+    font: inherit; font-family: "IBM Plex Mono", monospace; font-size: 0.688rem;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    background: none; border: 0; border-left: 1px solid var(--rule);
+    color: var(--ink-faint); padding: 0.3rem 0.7rem; cursor: pointer;
+  }
+  .themesw button:first-child { border-left: 0; }
+  .themesw button:hover { color: var(--ink); }
+  .themesw button[aria-pressed="true"] { background: var(--accent-tint); color: var(--accent); font-weight: 600; }
+  .themesw button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  /* ── Условие карточки — не метка ──────────────────────────────────────────
+     Гейт, порядок и снятое условие живут в <span class="cond">, метки — в
+     <span class="gate">. Разведены сущностями, а не разбором текста: фильтр
+     берёт .gate целиком и не решает, что тут метка, а что состояние.
+     Рисуются контуром против заливки чипов: заливка = состояние в очереди,
+     контур = условие на самой единице. */
+  .cond {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.625rem;
+    letter-spacing: 0.06em; color: var(--ink-soft);
+    border: 1px solid var(--rule-strong); border-radius: 999px;
+    padding: 0.12rem 0.5rem; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 0.3rem;
+  }
+  .cond::before { content: "→"; color: var(--ink-faint); font-size: 0.7em; }
+  .cond.on { color: var(--warn); border-color: var(--warn); }
+  .cond.on::before { content: "⛔"; color: var(--warn); }
+  .cond.off { color: var(--ok); border-color: var(--ok); }
+  .cond.off::before { content: "✓"; color: var(--ok); }
+
+  /* иконочный переключатель темы */
+  .themesw button.icon { display: inline-flex; align-items: center; padding: 0.3rem 0.6rem; }
+  .themesw button.icon svg { width: 0.95rem; height: 0.95rem; display: block; }
+  .themesw button.icon[data-auto="1"] { color: var(--ink-faint); }
+  .themesw button.icon[data-auto="0"] { background: var(--accent-tint); color: var(--accent); }
+
+  /* ── Сворачиваемые блоки: закрытые единицы и оси наследования ────────────
+     На <details>: содержимое остаётся в DOM и в файле, поэтому
+     board_accepted_issue_numbers и check_accepted_log читают таблицу
+     закрытых так же, как читали её развёрнутой. */
+  .fold { border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); }
+  .fold > summary {
+    list-style: none; cursor: pointer; padding: 0.9rem 1rem;
+    display: flex; flex-direction: column; gap: 0.75rem;
+  }
+  .fold > summary::-webkit-details-marker { display: none; }
+  .fold > summary:hover { background: var(--accent-tint); }
+  .fold > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .foldhead { display: flex; align-items: baseline; gap: 0.55rem; flex-wrap: wrap; }
+  .foldhead b {
+    font-family: Literata, Georgia, serif; font-size: var(--step-1);
+    font-weight: 600; line-height: 1.25;
+  }
+  .chev { color: var(--ink-faint); font-size: 0.75rem; transition: transform 0.15s ease; display: inline-block; }
+  .fold[open] > summary .chev { transform: rotate(90deg); }
+  .foldhint {
+    margin-left: auto; font-family: "IBM Plex Mono", monospace; font-size: 0.625rem;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint);
+  }
+  .fold[open] > summary .foldhint::after { content: " ↑"; }
+  .fold[open] > summary .foldhint { color: var(--accent); }
+  .fold > *:not(summary) { padding: 0 1rem 1rem; }
+  .fold > .tablewrap { margin: 0 1rem 1rem; padding: 0; }
+  .axes { display: flex; flex-direction: column; gap: 1rem; }
+  .axisfig { display: block; overflow-x: auto; }
+  /* Ширина ограничена: без потолка svg растягивается на всю страницу и
+     10-пиксельный текст виснет кеглем крупнее основного — ноды читаются
+     массивными, хотя в системе координат они мелкие. Кегли занижены только
+     здесь: диаграммы пайплайнов живут на тех же классах, и трогать их эта
+     правка не должна. */
+  .axisfig svg { display: block; width: 100%; max-width: 44rem; min-width: 32rem; height: auto; color: var(--rule-strong); }
+  .axisfig .dg-t { font-size: 10.5px; }
+  .axisfig .dg-s,
+  .axisfig .dg-l,
+  .axisfig .dg-x { font-size: 8.5px; }
+
+  /* сводка по закрытым — та же сетка, что у сводки шапки */
+  .foldstat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .foldstat > span { background: var(--surface); padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.2rem; }
+  .foldstat .k { font-family: "IBM Plex Mono", monospace; font-size: 0.625rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
+  .foldstat .v { font-family: Literata, Georgia, serif; font-size: var(--step-2); line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .foldstat .v.ok { color: var(--ok); }
+  .foldstat .v.note { color: var(--warn); }
+  .foldstat .v.sm { font-size: var(--step-0); }
+  /* ── Таймлайн вердиктов ──────────────────────────────────────────────────
+     Занимает ровно тот остаток строки плиток, который иначе стоял бы пустым:
+     число колонок считает скрипт и кладёт в --tlspan. Расстояние между
+     точками пропорционально числу суток между датами, поэтому пауза в работе
+     видна как разрыв, а не как ровный шаг. Узкий экран убирает подписи дат —
+     остаются точки с числом вердиктов. */
+  .foldstat .tl { background: var(--surface); padding: 0.7rem 0.9rem;
+    grid-column: span var(--tlspan, 4); display: flex; align-items: center; }
+  .tl-line { display: flex; align-items: flex-start; width: 100%; }
+  .tl-pt { display: flex; flex-direction: column; align-items: center;
+    gap: 0.3rem; flex: 0 0 auto; }
+  .tl-dot { width: 22px; height: 22px; border-radius: 50%; background: var(--surface);
+    border: 1px solid var(--rule-strong); display: flex; align-items: center;
+    justify-content: center; font-family: "IBM Plex Mono", monospace;
+    font-size: 0.6875rem; line-height: 1; color: var(--ink-soft);
+    font-variant-numeric: tabular-nums; }
+  .tl-pt.now .tl-dot { border-color: var(--accent); color: var(--accent); }
+  .tl-d { font-family: "IBM Plex Mono", monospace; font-size: 0.625rem;
+    letter-spacing: 0.06em; color: var(--ink-faint); white-space: nowrap; }
+  .tl-pt.now .tl-d { color: var(--ink-soft); }
+  .tl-seg { flex: 1 1 auto; min-width: 12px; height: 1px; margin-top: 11px;
+    background: var(--rule); }
+  @media (max-width: 40rem) {
+    .foldstat { grid-template-columns: repeat(2, 1fr); }
+    .foldstat .tl { grid-column: 1 / -1; }
+    .tl-d { display: none; }
+  }
+
+  /* ── Крупные блоки страницы ──────────────────────────────────────────────
+     Доска читается сверху вниз пятью блоками: шапка со сводкой, заморозка,
+     дашборд, комментарии к нему, канон. Граница между блоками проведена
+     явно — иначе разделы сливаются в одну ленту. */
+  .page > .block, .page > section { padding-top: 2.25rem; border-top: 1px solid var(--rule-strong); }
+  .page > header, .page > .tally, .page > .callout { border-top: 0; padding-top: 0; }
+  .block { display: flex; flex-direction: column; gap: 1.25rem; }
+  h2.blockhead {
+    font-size: var(--step-3); letter-spacing: -0.015em;
+    padding-bottom: 0.55rem; border-bottom: 2px solid var(--ink);
+    display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+  }
+  h2.blockhead .qual {
+    font-family: "IBM Plex Sans", sans-serif; font-size: var(--step--1);
+    font-weight: 400; color: var(--ink-faint); letter-spacing: 0.02em;
+    text-align: right; flex: 1 1 auto;
+  }
+  /* внутри дашборда дорожки — подзаголовки, а не равные ему разделы */
+  .block .lanes > section > h2, .block > section > h2 { font-size: var(--step-1); border-bottom-width: 1px; }
+  .block > section { padding-top: 0; border-top: 0; }
+
+  /* свёртка без собственной рамки — раздел уже обведён своим заголовком */
+  .fold.flat { border: 0; background: none; }
+  .fold.flat > summary { padding: 0; gap: 0.9rem; }
+  .fold.flat > summary:hover { background: none; }
+  .fold.flat > summary:hover .foldhead b { color: var(--accent); }
+  .fold.flat > *:not(summary) { padding: 1.25rem 0 0; }
+  .fold.flat > summary .foldhead b { font-size: var(--step-1); }
+
+  /* канон: каждый пункт — свой раскрывающийся заголовок */
+  .minis { display: flex; flex-direction: column; }
+  .mini { border-bottom: 1px solid var(--rule); }
+  .mini:first-child { border-top: 1px solid var(--rule); }
+  .mini > summary {
+    list-style: none; cursor: pointer; padding: 0.7rem 0.2rem;
+    display: flex; align-items: baseline; gap: 0.55rem;
+  }
+  .mini > summary::-webkit-details-marker { display: none; }
+  .mini > summary:hover b { color: var(--accent); }
+  .mini > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .mini > summary b { font-weight: 600; font-size: var(--step-0); }
+  .mini[open] > summary { padding-bottom: 0.35rem; }
+  .mini > p { margin: 0 0 0.9rem 1.55rem; max-width: 70ch; color: var(--ink-soft); font-size: var(--step--1); }
+
+  /* слепок состояния: плитки читаются одним взглядом, проза — под кликом */
+  .callout .fold.flat > summary { padding: 0; }
+  .callout .fold.flat > *:not(summary) { padding: 1.1rem 0 0; }
+  .foldstat.snap { grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
+  .foldstat .v.crit { color: var(--crit); }
+  .foldstat .v code { background: none; color: inherit; padding: 0; font-size: 0.95em; }
+  .foldstat .v.sm { font-family: "IBM Plex Sans", sans-serif; font-weight: 600; }
+  .snapbody { gap: 0.9rem; }
+  .snapbody p { max-width: 70ch; color: var(--ink-soft); }
+  .snapbody p.lead { color: var(--ink); }
+
+  /* порядок взятия: занимает хвост строки плиток, шагов показывает столько,
+     сколько поместилось — остальные считает «+N» и держит в подсказке */
+  .foldstat .ord { grid-column: span var(--ordspan, 2); min-width: 0; }
+  .foldstat .ordline {
+    display: block; white-space: nowrap; overflow: hidden;
+    font-family: "IBM Plex Sans", sans-serif; font-weight: 600;
+  }
+  .ordline b { font-weight: 600; color: var(--ink); }
+  .ordline b:first-child { color: var(--accent); }
+  .ordline i { font-style: normal; color: var(--ink-faint); padding: 0 0.4rem; }
+  .ordline u {
+    text-decoration: none; font-family: "IBM Plex Mono", monospace;
+    font-size: 0.688rem; font-weight: 400; color: var(--ink-faint); padding-left: 0.5rem;
+  }
+
+  /* ── Полосы страницы ─────────────────────────────────────────────────────
+     Четыре зоны чередуют фон во всю ширину окна: состояние → работа →
+     метод → канон. Внутренние разделители остаются только между разделами
+     одной зоны: смена фона сама отбивает зону от зоны. */
+  :root {
+    --band: #EAEEEA;
+    --inv-bg: #121715; --inv-ink: #EAEFEC; --inv-soft: #A8B4AF;
+    --inv-accent: #86CDBE; --inv-code: rgba(255,255,255,0.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --band: #0E1211;
+      --inv-bg: #E7ECE9; --inv-ink: #121715; --inv-soft: #4A544F;
+      --inv-accent: #14544B; --inv-code: rgba(0,0,0,0.07);
+    }
+  }
+  :root[data-theme="dark"] {
+    --band: #0E1211;
+    --inv-bg: #E7ECE9; --inv-ink: #121715; --inv-soft: #4A544F;
+    --inv-accent: #14544B; --inv-code: rgba(0,0,0,0.07);
+  }
+
+  .zone { background: var(--ground); }
+  .zone.band { background: var(--band); }
+  .zone > .page { padding-top: 3.25rem; padding-bottom: 3.25rem; gap: 3rem; }
+  .zone.first > .page { padding-top: clamp(2rem, 5vw, 4.5rem); }
+  .zone:last-child > .page { padding-bottom: 6rem; }
+  .zone > .page > *:first-child { border-top: 0; padding-top: 0; }
+
+  /* Подвал — отдельная зона с обратной полярностью: тёмная в светлой теме,
+     светлая в тёмной. Это конец страницы, а не ещё один раздел; контраст
+     сообщает это раньше, чем прочитан текст. */
+  .zone.invert { background: var(--inv-bg); color: var(--inv-ink); }
+  .zone.invert > .page { padding-top: 3rem; }
+  .zone.invert footer {
+    border-top: 0; padding-top: 0; color: var(--inv-soft); max-width: 74ch;
+  }
+  .zone.invert a { color: var(--inv-accent); }
+  .zone.invert a:focus-visible { outline-color: var(--inv-accent); }
+  .zone.invert code { background: var(--inv-code); color: var(--inv-ink); }
+
+  /* размер значения «порядка взятия» — как у соседних плиток */
+  .foldstat .ordline { font-size: var(--step-0); }
+
+  /* Сводка очереди — первый плиточный блок страницы. Отступы резиновые:
+     на узком экране ячейка не съедает половину строки под воздух, на
+     широком — не жмётся к рамке. Шаг привязан к ширине окна, а не к брейку,
+     поэтому промежуточных ступеней не видно. */
+  .tally > div {
+    padding: clamp(0.85rem, 1.1vw + 0.5rem, 1.4rem) clamp(0.9rem, 1.3vw + 0.5rem, 1.6rem);
+    gap: clamp(0.25rem, 0.4vw, 0.4rem);
+  }
+
+  /* тот же знак держателя заморозки, что в сводке шапки: рамка, не заливка */
+  .foldstat .v .freeze-mark {
+    background: var(--crit-tint); color: var(--crit);
+    border: 1px solid currentColor; border-radius: 2px;
+    padding: 0 0.28rem; font-weight: 700;
+  }
 </style>
+<script>
+/* Тема ставится до первой отрисовки: иначе выбранная «Ночь» мигнёт светлым. */
+(function () {
+  try {
+    var t = localStorage.getItem('board-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+</script>
 </head>
 <body>
-<div class="page">
+<div class="zone plain first">
+  <div class="page">
 
   <header class="masthead">
-    <p class="eyebrow">AM Legal Agent · доска задач</p>
+    <div class="topline">
+      <p class="eyebrow">AM Legal Agent · доска задач</p>
+      <div class="themesw" id="themesw" role="group" aria-label="Тема оформления">
+        <button type="button" id="theme-auto" aria-pressed="true" title="Следовать теме системы">Auto</button>
+        <button type="button" id="theme-toggle" class="icon" data-auto="1" aria-label="Переключить тему">
+          <svg id="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.2"/>
+            <path d="M12 2.4v2.4M12 19.2v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.4 12h2.4M19.2 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/>
+          </svg>
+          <svg id="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+            <path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.9 6.9 0 0 0 11.1 11.1z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
     <h1>Очередь работ</h1>
     <p class="lede">Единица работы — issue. Работа вне issue не начинается. Состояние держится в этом файле; правит его приёмщик.</p>
     <p class="meta">
-      <span>обновлено 3 сентября 2026</span>
-      <span>18 открытых · 20 закрытых</span>
+      <span>обновлено 4 сентября 2026</span>
+      <span>15 открытых · 28 закрытых</span>
       <span>github.com/DeepSpaceWombat/AM-legal-agent</span>
     </p>
   </header>
@@ -284,13 +688,13 @@
   <div class="tally">
     <div>
       <p class="eyebrow">Свободны</p>
-      <p class="n go">15</p>
-      <p class="note">#18 · <span class="freeze-mark" title="Держатель заморозки">#60</span> · #17 · #44 · #29 · #16 · #34 · #15 · #49 · #50 · #62 · #63 · #64 · #65 · #66</p>
+      <p class="n go">11</p>
+      <p class="note">#72 · #16 · #34 · #15 · #49 · #50 · #62 · #63 · #64 · #65 · #68</p>
     </div>
     <div>
       <p class="eyebrow">За гейтами</p>
-      <p class="n hold">1</p>
-      <p class="note">#30</p>
+      <p class="n hold">2</p>
+      <p class="note">#30 · <span class="freeze-mark" title="Держатель заморозки">#77</span></p>
     </div>
     <div>
       <p class="eyebrow">Backlog</p>
@@ -300,84 +704,50 @@
   </div>
 
   <div class="callout alarm">
-    <h3>Заморожено сейчас</h3>
-    <p><strong>Держатель заморозки</strong> — issue <strong>#60</strong>: её закрытие снимает заморозку <code>_validate_response</code>.</p>
-    <p><strong>Следующий шаг</strong> — issue <strong>#60</strong>: свободная <code>agent</code>-issue, которую агент берёт сейчас для приведения кода и докстринга правила приёма хвоста к одному утверждению.</p>
-    <p><strong>Сейчас совпадают:</strong> #60 одновременно держит заморозку и является следующим шагом.</p>
-    <p class="lead"><code>_validate_response</code> в <code>pipeline/anonymize/gate_llm.py</code> — держатель <strong>#60</strong>. <code>_chunk_payload</code> <strong>разморожена</strong>.</p>
+    <details class="fold flat">
+      <summary>
+        <span class="foldhead"><span class="chev" aria-hidden="true">▸</span><b>Слепок состояния</b><span class="foldhint">развернуть</span></span>
+      <span class="foldstat snap">
+        <span><span class="k">Заморожено сейчас</span><span class="v sm crit"><code>_validate_response</code></span></span>
+        <span><span class="k">Держатель заморозки</span><span class="v sm">issue <span class="freeze-mark" title="Держатель заморозки">#77</span></span></span>
+        <span><span class="k">Следующий шаг</span><span class="v sm">issue #72</span></span>
+        <span><span class="k">Разморожено</span><span class="v sm ok"><code>_chunk_payload</code></span></span>
+        <span><span class="k">Заморозка передана</span><span class="v sm">04.09 · PR #76</span></span>
+        <span class="ord" hidden><span class="k">Порядок взятия</span><span class="v ordline" id="take-order"></span></span>
+      </span>
+      </summary>
+      <div class="prose snapbody">
+      <p><strong>Держатель заморозки</strong> — issue <strong>#77</strong>: её закрытие снимает заморозку <code>_validate_response</code>.</p>
+    <p><strong>Следующий шаг</strong> — issue <strong>#72</strong>: свободная <code>agent</code>-issue без незакрытых <code>blockedBy</code>, которую агент берёт сейчас (<code>vault.freeze-anchor</code> не умеет выражать «заморозка есть, держателя нет» — из-за этого приёмка PR #76 была вынуждена назначить держателя #77, а не снять заморозку).</p>
+    <p><strong>Почему разошлись:</strong> держатель читается из последнего вердикта в <code>decisions/acceptance-log.md</code>, следующий шаг — из очереди GitHub. #77 — операционный перепрогон, он сам стоит за гейтом #30 и взять его сейчас нельзя; поэтому поля впервые называют разные единицы.</p>
+    <p class="lead"><code>_validate_response</code> в <code>pipeline/anonymize/gate_llm.py</code> — держатель <strong>#77</strong>. <code>_chunk_payload</code> <strong>разморожена</strong>.</p>
     <p><strong>Синхронизировано 02.09 приёмкой PR #40 (issue #14).</strong> Пересдача F-3 снята: 15 PASS / 16, остаточных находок PII ноль на всех ходах. Сравнение с базой F-3 завершено, поэтому заморозка <code>_chunk_payload</code> снята — её держала сопоставимость измерения, а измерение закрыто. Решение владельца 02.09.</p>
-    <p><strong>Вторая функция держится дальше.</strong> Приёмка PR #57 (03.09) закрыла #33 и передала заморозку <strong>#60</strong>: правило приёма хвоста переписано, но следующий операционный перепрогон ступени 5.3 меряет уже его — правка <code>_validate_response</code> вне #60 рвёт сопоставимость молча.</p>
+    <p><strong>Вторая функция держится дальше.</strong> Приёмка PR #76 (04.09) закрыла #71 и передала заморозку <strong>#77</strong>: правило приёма хвоста стало точным allowlist (<code>Готово.</code>, <code>&lt;/s&gt;</code>, <code>&lt;|im_end|&gt;</code>), известного кодового отказа у него больше нет, но операционный перепрогон ступени 5.3 так и не состоялся и померяет уже это правило — правка <code>_validate_response</code> вне держателя рвёт сопоставимость молча. Держателя пришлось назначить, а не снять заморозку: состояние «заморозка есть, держателя нет» механически невыразимо, пока открыта #72. До этого заморозку держали #71 (передача приёмкой PR #69, 03.09) и #60 (передача приёмкой PR #57, 03.09).</p>
     <p>Держатель заморозки перечитывается из последнего вердикта в <code>decisions/acceptance-log.md</code>, а не угадывается по номеру issue. <code>AGENTS.md</code> §7 и эта карточка называют одну и ту же issue; совпадение проверяется исполняемо — <code>acceptance_check.py</code>, проверки <code>repo.freeze-anchor</code> и <code>vault.freeze-anchor</code>.</p>
+      </div>
+    </details>
   </div>
+  </div>
+</div>
 
-  <section>
-    <h2>Оценка единицы<span class="qual">пять точек — уровень исполнителя, слово рядом — можно ли параллелить</span></h2>
-    <p class="measure">Оценка отвечает на два вопроса разом: <strong>кому поручить</strong> и <strong>можно ли начинать рядом с чем-то ещё</strong>. Точки дают первое, слово — второе. Развести их пришлось намеренно: в шкале параллельность закодирована чётностью (5 и 3 — соло, 4 и 2 — параллельно), а чётность никто не запоминает и читать её глазами нельзя.</p>
-    <div class="scale">
-        <div class="row"><span class="d"><b>●●●●●</b></span><span class="lv">Синьор · <span class="solo">соло</span></span><span class="tx">Сложная долгая работа со многими связями. Не параллелить ни с чем: пока она идёт, соседняя единица встанет на её же файлы или на её же измерение.</span></div>
-        <div class="row"><span class="d"><b>●●●●</b><i>○</i></span><span class="lv">Синьор · парал.</span><span class="tx">Сложная долгая, но независимая. Можно вести рядом с другой — общих файлов и общих гейтов нет.</span></div>
-        <div class="row"><span class="d"><b>●●●</b><i>○○</i></span><span class="lv">Мидл · <span class="solo">соло</span></span><span class="tx">Не очень сложная, но со связями. Чаще всего связь — общий файл: четыре единицы гейта приёмки (#49, #50, #64, #65) живут в одном <code>acceptance_check.py</code> и между собой не параллелятся.</span></div>
-        <div class="row"><span class="d"><b>●●</b><i>○○○</i></span><span class="lv">Мидл · парал.</span><span class="tx">Несложная, недолгая, независимая. Берётся рядом с чем угодно.</span></div>
-        <div class="row"><span class="d"><b>●</b><i>○○○○</i></span><span class="lv">Джун · парал.</span><span class="tx">Справится самый простой исполнитель: правка в одном месте, ошибка видна сразу.</span></div>
-    </div>
-    <p class="measure"><strong>Ступень «Джун» сегодня пуста, и это не случайность.</strong> Даже мелкая правка доков здесь требует прочитать канон и понять, какое из четырёх мест авторитетно, — а это уже не самый простой исполнитель. Ступень оставлена: если появится единица, которую можно объяснить одной фразой без чтения канона, ей найдётся место.</p>
-    <p class="measure">Карточки владельца (<code>owner-action</code>) точек не получают: там нечего оценивать по трудоёмкости — это решение, а не работа. У них стоит <span class="pts none"><span class="dots"><i>○○○○○</i></span><span class="who">решение</span></span>.</p>
-    <p class="measure">Оценка — суждение приёмщика, а не измерение. Она подсказывает, чем и в каком порядке занять исполнителей, и <strong>не отменяет</strong> ни гейтов <code>blocked-by</code>, ни заморозки: единица на 2 точки, заблокированная нативной зависимостью, всё равно не берётся.</p>
-  </section>
-
+<div class="zone band">
+  <div class="page">  <div class="block" id="dashboard">
+    <h2 class="blockhead">Дашборд<span class="qual">очередь единиц и принятое; фильтры считают карточки этого блока</span></h2>
+  <div class="lanes">
+    <div class="fbar" id="lane-filters" role="group" aria-label="Фильтры очереди"></div>
   <section>
     <h2>Свободны<span class="qual">можно брать сейчас</span></h2>
     <div class="board">
 
-      <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/17">#17</a></p>
-        <div class="what">
-          <h3>Слить chunk_text и _chunk_payload — и только их</h3>
-          <p><code>HybridChunkerFacade</code> в слияние не входит: это заявленная заглушка под токен-ориентированный Docling-чанкер.</p>
-        </div>
-        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — spec-guard на недавно размороженном предмете; границы узкие, но ошибка тихая."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">агент · spec-guard</span></div>
-      </div>
 
       <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/18">#18</a></p>
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/72">#72</a></p>
         <div class="what">
-          <h3>CasePipeline: пошаговый вход, ветвление маршрута из CLI в конвейер</h3>
-          <p>Унифицирована сборка, но не последовательность: <code>_cmd_process</code> кодирует ветвление <code>RouteTarget.CLOUD</code> у себя.</p>
+          <h3>Гейт заморозки: «держателя нет» невыразимо</h3>
+          <p>Нота N-2 приёмки PR #69, <strong>решение владельца 03.09 — вариант A</strong>. <code>repo.freeze-anchor</code> допускает якорь без номера, <code>vault.freeze-anchor</code> — нет, поэтому «заморозка снята, держателя нет» механически невыразимо: гейт дешевле пройти, назначив держателя, чем разморозив. Обе проверки учатся принимать явное «нет» + ссылку на вердикт; смешанное состояние остаётся <code>FAIL</code>. Хрупкость самого якоря (§7 держится на упоминании размороженной <code>_chunk_payload</code>) — вне границ.</p>
         </div>
-        <div class="side"><span class="pts" title="5/5 · Синьор · не параллелить — Структурная правка: ветвление маршрута переезжает из CLI в конвейер. Задевает и вход, и сборку."><span class="dots"><b>●●●●●</b></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">агент</span></div>
+        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — та же функция check_board_freeze, что у #49, поэтому идут по очереди. Первой берётся эта: пока «держателя нет» невыразимо, заморозку дешевле передать, чем снять (вердикты PR #76, #78, #79)."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
       </div>
-
-      <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/44">#44</a></p>
-        <div class="what">
-          <h3>Хвосты #41: падежи структурных слов и словоформы единиц денежной суммы</h3>
-          <p>Приёмка #41 закрыла ноты N-1/N-2 частично, остаток жил комментарием в закрытой задаче. Косвенные падежи («Приложении А.», «Разделе Б.») по-прежнему дают <code>PERSON</code> — приватность fail-closed, рвётся структура.</p>
-          <p><strong>Объём уточнён 03.09: разрыв по суммам шире, чем считали при заведении.</strong> Полные слова «тысяч», «миллионов», «миллиарда», «копеек» не покрывались ни в одной форме — работали только сокращения. «Взыскать 5 миллионов рублей» не давало ни одной находки. <code>detect_amounts</code> — единственный вход <code>amount_signal_present</code>, поэтому по маршрутизации это fail-open ровно на классе крупных сумм.</p>
-          <p><strong>Спека больше не блокирует:</strong> §2.2 <a href="../specs/30-anonymization-gate.md">30-anonymization-gate</a> правится владельцем 03.09 — перечень форм заменён основой со свободным окончанием, хвост <code>\b</code> на <code>(?!\w)</code>; в §9 добавлен нормативный тест. Агент приводит код к принятой формулировке. Третьим пунктом добавлено расхождение паттерна и <code>_AMOUNT_UNIT_MULTIPLIER</code>: карта ключуется точной строкой, поэтому расширение регулярки без её правки даёт <em>молчаливый</em> пропуск. Реестровый №19 переклассифицирован — решение владельца принято, остаток чисто кодовый.</p>
-        </div>
-        <div class="side"><span class="pts" title="4/5 · Синьор · можно параллелить — Две половины плюс карта множителей одним PR. Спека принята, ни с одной другой единицей не пересекается."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · парал.</span></span><span class="chip go">Свободна</span><span class="gate">агент · spec-guard · спека снята 03.09</span></div>
-      </div>
-
-      <div class="issue" data-freeze>
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/60">#60</a></p>
-        <div class="what">
-          <h3>Ступень 5.3: хвост, пересматривающий вердикт по-русски, проходит как безобидный</h3>
-          <p>Нота N-1 вердикта PR #57. Правило приёма хвоста считает словами управления вердиктом только латинские <code>pass</code>/<code>fail</code>/<code>verdict</code>, а промпт ступени русский: <code>{"verdict":"PASS",…}\nСтоп: нашёл остаточное ФИО</code> принимается. Докстринг обещает больше, чем делает код; промах направлен fail-open. Измеренный класс #33 (усечённый второй объект) не задет — он всегда начинается с <code>{</code>.</p>
-        </div>
-        <div class="side"><span class="pts" title="5/5 · Синьор · не параллелить — Замороженная _validate_response, spec-guard, плюс две реестровые строки одной единицей. Рвёт сопоставимость измерения, если тронуть мимо."><span class="dots"><b>●●●●●</b></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip crit">Заморозка</span><span class="chip go">Свободна</span><span class="gate">агент · spec-guard</span></div>
-      </div>
-
-
-
-      <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/29">#29</a></p>
-        <div class="what">
-          <h3>Профиль локальной модели в комплекте доказательств: команды сбора в runbook</h3>
-          <p>Имя тега профилем не является: <code>:latest</code> — движущаяся цель. Runbook'и получают команды сбора <code>digest</code> + <code>num_ctx</code> + <code>num_gpu</code> и требование класть вывод в evidence. Готовый образец уже есть в комплекте прогона #27.</p>
-        </div>
-        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Команды сбора в пару runbook'ов, готовый образец уже есть в комплекте #27."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">агент · доки</span></div>
-      </div>
-
 
       <div class="issue">
         <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/16">#16</a></p>
@@ -385,7 +755,7 @@
           <h3>CaseWorkspace — единственная власть над раскладкой диска</h3>
           <p>Раскладка §11 живёт в трёх местах, одно из них — <code>_PURGE_DIRS</code> в удаляющем пути. Единственный кандидат консолидации, чья поломка бьёт в юридическую тайну. Разработка свободна. <strong>Мерж-гейт снят 02.09:</strong> пересдача F-3 состоялась (15 PASS / 16), решение владельца принято, волна слита в <code>master</code> (PR #47). Ограничение, стоявшее в этой карточке с 01.09, больше не действует.</p>
         </div>
-        <div class="side"><span class="pts" title="5/5 · Синьор · не параллелить — Раскладка §11 в трёх местах, одно из них — _PURGE_DIRS в удаляющем пути. Поломка бьёт в юридическую тайну."><span class="dots"><b>●●●●●</b></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">агент · гейт снят 02.09</span></div>
+        <div class="side"><span class="pts" title="5/5 · Синьор · не параллелить — Раскладка §11 в трёх местах, одно из них — _PURGE_DIRS в удаляющем пути. Поломка бьёт в юридическую тайну."><span class="dots"><b>●●●●●</b></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">agent · spec-guard</span><span class="cond off">гейт снят 02.09</span></div>
       </div>
 
       <div class="issue">
@@ -394,7 +764,7 @@
           <h3>Где живёт измерительная оснастка зонда</h3>
           <p>Решение владельца: <code>scripts/probe/</code> в репозитории или хост. От него зависит форма сдачи #30 и воспроизводимость будущих прогонов.</p>
         </div>
-        <div class="side"><span class="pts none" title="Решение владельца — оценке по шкале не подлежит"><span class="dots"><i>○○○○○</i></span><span class="who">решение</span></span><span class="chip go">Свободна</span><span class="gate">владелец · решение</span></div>
+        <div class="side"><span class="pts none" title="Решение владельца — оценке по шкале не подлежит"><span class="dots"><i>○○○○○</i></span><span class="who">решение</span></span><span class="chip go">Свободна</span><span class="gate">owner-action</span></div>
       </div>
 
       <div class="issue">
@@ -403,7 +773,7 @@
           <h3>pravo.gov.ru: показать непустой references[] и обеспечить данными открытый вопрос №23</h3>
           <p>Код и тест в <code>master</code>. Осталась сдаточная часть: живой запрос с непустым <code>references[]</code> и отметка в <code>open-questions</code> №23.</p>
         </div>
-        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Код и тест в master; остаётся живой запрос и отметка в открытом вопросе №23."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">агент</span></div>
+        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Код и тест в master; остаётся живой запрос и отметка в открытом вопросе №23."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
       </div>
 
       <div class="issue">
@@ -412,7 +782,7 @@
           <h3>Гейт заморозки: объяснение расхождения искать в блоке «Заморожено сейчас»</h3>
           <p>Нота 1 приёмки PR #48. При расхождении полей <code>check_board_freeze</code> ищет объяснение по всему видимому тексту доски: когда поля разойдутся, гейт удовлетворится фразой из любого места, включая устаревшую от прошлого расхождения. Сузить до блока, из которого читаются оба поля.</p>
         </div>
-        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #50, #64, #65."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">агент</span></div>
+        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #50, #64, #65, #72; с #72 совпадает сама функция check_board_freeze — и #72 идёт первой, поэтому сужение окна ложится поверх её правки."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">agent</span><span class="cond">после #72</span></div>
       </div>
 
       <div class="issue">
@@ -421,7 +791,7 @@
           <h3>Гейт чеклиста «Готово, когда»: сверять текст пунктов, а не только их число</h3>
           <p>Нота 2 приёмки PR #48. Канон требует дословной копии чеклиста issue, но <code>check_pr_done_checklist</code> сверяет только количество чекбоксов — пересказанные своими словами пункты проходят. Дословность сегодня держится на глазах приёмщика.</p>
         </div>
-        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #49, #64, #65."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">агент</span></div>
+        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #49, #64, #65."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
       </div>
       <div class="issue">
         <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/62">#62</a></p>
@@ -429,7 +799,7 @@
           <h3>Канон: бриф и AGENTS.md не знают vault-only единицу</h3>
           <p>Канон получил третью форму закрытия единицы — vault-only (#58). Но два документа на <strong>штатном пути чтения разработчика</strong> формулируют маршрут безоговорочно: <code>dev-agent-brief.md</code> («сдача — это PR, а не сообщение в чат») и <code>AGENTS.md</code> («открываешь PR с <code>Closes #N</code>»). Разработчик читает бриф первым и упирается в запрет до того, как дойдёт до шага 3a. Та же конфигурация уже стоила одного круга — #56.</p>
         </div>
-        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — По фразе в два документа плюс сверка четырёх мест на непротиворечивость."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">агент · документация</span></div>
+        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — По фразе в два документа плюс сверка четырёх мест на непротиворечивость."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent · documentation</span></div>
       </div>
 
       <div class="issue">
@@ -438,7 +808,7 @@
           <h3>Дневной каталог graphify-out/ — слот на день, а не снимок</h3>
           <p>Каталог <code>graphify-out/2026-ММ-ДД/</code> перезаписывается каждой пересборкой последним состоянием перед перезаписью — это поведение <code>backup_if_protected</code>, проверенное по исходникам. Ничего не сломано: класс файла определён верно (#46), барьер #53 это ловить не должен. Цена в словах: закоммиченный днём каталог сдвигается после коммита, и «снимок дня» читается как запись, которой он до полуночи не является. Развилка владельца: назвать мутацию нормой в <code>AGENTS.md</code> (рекомендация исполнителя) или коммитить после смены суток.</p>
         </div>
-        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — После решения владельца — одна-две фразы в AGENTS.md."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">владелец · решение, затем доки</span></div>
+        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — После решения владельца — одна-две фразы в AGENTS.md."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent · documentation</span><span class="cond on">решение владельца, затем доки</span></div>
       </div>
 
       <div class="issue">
@@ -447,7 +817,7 @@
           <h3>Гейт: таблица «Закрыто» на доске не сверяется</h3>
           <p><code>vault.board-membership</code> сверяет с GitHub только <strong>открытые</strong> единицы. 02.09 из таблицы выпала issue #45 — слияние волны в <code>master</code>, крупнейшее событие суток; счётчик шапки говорил 13 закрытых, строк было 12, гейт при этом давал <code>RESULT: PASS</code>. Того же корня <code>check_accepted_log</code>: он обходит issue, <em>перечисленные на доске</em>, поэтому пропажу строки не ловит и он. Невидимое гейту не блокирует.</p>
         </div>
-        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #49, #50, #65."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">агент · гейт приёмки</span></div>
+        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #49, #50, #65."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
       </div>
 
       <div class="issue">
@@ -456,17 +826,18 @@
           <h3>Гейт: ссылка на артефакт claude.ai в живом документе vault</h3>
           <p>Опубликованный артефакт — снимок, который <strong>выглядит живым</strong>: пути в git нет, архивирование его не перенесёт, в <code>grep</code> он не попадёт, а ссылка кликабельна. 03.09 сессия открыла копию плана, замороженную 02.09, и читала её как текущее состояние. Правило записано в <code>issue-pr-workflow.md</code> («Что живое, а что снимок») тем же ходом; эта единица делает его исполняемым.</p>
         </div>
-        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #49, #50, #64."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">агент · доки · гейт</span></div>
+        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #49, #50, #64."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">agent · documentation</span></div>
       </div>
 
       <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/66">#66</a></p>
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/68">#68</a></p>
         <div class="what">
-          <h3>Локальный skill archivist: аудит дрейфа, планы и безопасная архивация</h3>
-          <p>Второй REJECT 03.09. Круг 1: пункт чеклиста назвал <code>disable-model-invocation: true</code>, поля не было, <code>[x]</code> стоял. Круг 2: поле добавлено — и <code>quick_validate.py</code> стал валиться (<code>Unexpected key(s)</code>, exit 1): у skill-схемы Codex этого ключа нет, он из Claude Code, а <code>.agents/</code> Claude Code не читает. Противоречие закрыли правкой чеклиста самой issue — исчез пункт про валидатор. Развилка владельца: механизм <code>agents/openai.yaml</code> и убрать поле, либо skill переезжает в <code>.claude/skills/</code>, где поле настоящее.</p>
+          <h3>Гейт: раскладка archivist ломается в сторону разрешения, а не запрета</h3>
+          <p>Нота 2 вердикта круга 3 по #66. Запрет самозапуска archivist в Pi держится на абсолютном пути исключения в <code>.pi/settings.json</code>; перенос репо или vault рассогласовывает путь, Pi подхватывает Codex-адаптер без <code>disable-model-invocation</code>, и скилл становится виден модели. Ничего не падает — деградация идёт <strong>в сторону разрешения</strong> при проектной норме fail-closed. Той же природы три симлинка через <code>../../../../</code> в имя каталога с кириллицей и тире. Предмет единицы — проверка в <code>acceptance_check.py</code>, а не переезд раскладки: она принята решением владельца.</p>
         </div>
-        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Инструкция skill плюс одна строка frontmatter; кода и спек не касается."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">владелец · решение о механизме, затем PR #67</span></div>
+        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #49, #50, #64, #65."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">agent · bug</span></div>
       </div>
+
 
     </div>
   </section>
@@ -481,8 +852,18 @@
           <h3>Инструментовка прогона: JSONL по чанку и небуферизованный stdout</h3>
           <p>Не наблюдаемость — выходные переменные #28: <code>validation</code>, primary/repair, <code>finding_count</code>, <code>residual_count</code> в момент запроса, а не в конце хода.</p>
         </div>
-        <div class="side"><span class="pts" title="4/5 · Синьор · можно параллелить — Инструментовка не должна возмущать измерение — это и есть сложность. За гейтом #34."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · парал.</span></span><span class="chip hold">Ждёт</span><span class="gate">blocked-by #34</span></div>
+        <div class="side"><span class="pts" title="4/5 · Синьор · можно параллелить — Инструментовка не должна возмущать измерение — это и есть сложность. За гейтом #34."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · парал.</span></span><span class="chip hold">Ждёт</span><span class="gate">agent</span><span class="cond on">blocked-by #34</span></div>
       </div>
+
+      <div class="issue" data-freeze>
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/77">#77</a></p>
+        <div class="what">
+          <h3>Ступень 5.3: операционный перепрогон на живой модели против allowlist хвоста</h3>
+          <p>Правило приёма хвоста переписано дважды (PR #69, PR #76), но ни одна редакция не измерена: последний прогон #27 снят на прежнем правиле. Риск теперь обратный — штатный хвост вне трёх разрешённых значений превращает нормальный ответ в FAIL. Ноль правок кода: единица измеряет <code>_validate_response</code>, а не чинит её.</p>
+        </div>
+        <div class="side"><span class="pts" title="4/5 · Синьор · не параллелить — Операционный прогон на живой модели: ноль правок кода, но результат правит правило приёма ответа ступени."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip crit">Заморозка</span><span class="chip hold">Ждёт</span><span class="gate">agent · spec-guard</span><span class="cond on">blocked-by #30</span></div>
+      </div>
+
     </div>
   </section>
 
@@ -497,7 +878,7 @@
           <h3>EvalHarness и два хранилища решений — планировать, не делать</h3>
           <p>Два предусловия: отложенный №20 про область хеширования golden set и сверка пункта B с <code>autonomy-roadmap</code> H-3.</p>
         </div>
-        <div class="side"><span class="pts" title="5/5 · Синьор · не параллелить — Слой eval целиком, два открытых предусловия. Backlog."><span class="dots"><b>●●●●●</b></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip off">Backlog</span><span class="gate">предусловия открыты</span></div>
+        <div class="side"><span class="pts" title="5/5 · Синьор · не параллелить — Слой eval целиком, два открытых предусловия. Backlog."><span class="dots"><b>●●●●●</b></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip off">Backlog</span><span class="gate">spec-guard</span><span class="cond on">предусловия открыты</span></div>
       </div>
 
       <div class="issue">
@@ -506,18 +887,32 @@
           <h3>HTML-панель исполнения прогона на probka-llm</h3>
           <p>Открытый блокер не двигает; наблюдаемость закрыта сайдкаром. Требования сохранены целиком: тейлнет-бинд, Basic-auth, SSE, невмешательство в измерение.</p>
         </div>
-        <div class="side"><span class="pts" title="4/5 · Синьор · можно параллелить — Сайдкар: тейлнет-бинд, Basic-auth, SSE. Объёмно, но полностью изолировано."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · парал.</span></span><span class="chip off">Backlog</span><span class="gate">после сдвига блокера</span></div>
+        <div class="side"><span class="pts" title="4/5 · Синьор · можно параллелить — Сайдкар: тейлнет-бинд, Basic-auth, SSE. Объёмно, но полностью изолировано."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · парал.</span></span><span class="chip off">Backlog</span><span class="gate">agent</span><span class="cond on">после сдвига блокера</span></div>
       </div>
 
     </div>
   </section>
+  </div>
 
   <section>
     <h2>Закрыто<span class="qual">вердикты — в decisions/acceptance-log.md</span></h2>
+    <details class="fold">
+      <summary>
+        <span class="foldhead"><span class="chev" aria-hidden="true">▸</span><b>Принятые единицы</b><span class="foldhint">развернуть таблицу</span></span>
+        <span class="foldstat" id="closed-stats"></span>
+      </summary>
     <div class="tablewrap">
-      <table>
+      <table id="closed-table">
         <thead><tr><th>Issue</th><th>Что закрыто</th><th>Вердикт</th></tr></thead>
         <tbody>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/29">#29</a></td><td>Профиль локальной модели попал в комплект доказательств исполняемо: раздел 3 обоих runbook'ов (en+ru) получил единый блок сбора <code>model-profile.txt</code> — <code>ollama show --modelfile</code> (параметры тега), <code>ollama list</code> и <code>ollama show</code> (digest), <code>ollama ps</code> при загруженной модели (фактические <code>CONTEXT</code> и распределение CPU/GPU). Закреплено требование класть слепок рядом с digest образа и контрольной суммой входа для каждого измерения GATE 5.3 и каждого прогона F-3 и прямо сказано, что имя тега профилем не является: <code>:latest</code> — движущаяся цель, одного digest мало. Отдельный скрипт не заводился</td><td>ACCEPTED WITH NOTES · 04.09 — PR #79, merge <code>76fb436</code>; ноты N-1 (порядок разделов) и N-2 (<code>set -euo pipefail</code> в интерактивной вставке)</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/75">#75</a></td><td>Транзитная очередь путей watch-процесса <code>graphify-out/.pending_changes</code> отнесена к тому же классу игнора, что <code>.rebuild.lock</code> и <code>.graph.tmp.json</code>, — по норме решения #46 «регенерируемое и чисто-локальное», а не по удобству: строка в <code>.gitignore</code>, абзац в <code>AGENTS.md</code> и регрессия в <code>tests/test_acceptance_check.py</code>. <code>repo.graphify-untracked</code> даёт PASS при живом файле в дереве (проверено приёмщиком исполнением), накапливаемый журнал по-прежнему валит вердикт</td><td>ACCEPTED WITH NOTES · 04.09 — PR #78, merge <code>add0cb6</code>; нота N-1 (тело PR называет <code>.vocab.txt</code>, которого нет в каноне)</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/71">#71</a></td><td>Ступень 5.3: безопасный хвост после schema-valid объекта определяется точным allowlist (<code>Готово.</code>, <code>&lt;/s&gt;</code>, <code>&lt;|im_end|&gt;</code>) вместо формы «один токен ≤32 символов без пробелов» и неполного словаря слов управления вердиктом. Четыре воспроизведения ноты N-1 (<code>Неверно</code>, <code>НЕТ!</code>, <code>no</code>, <code>Остаточное_ФИО_найдено</code>) дают fail-closed; тесты PR #57 и #69 прошли без правки ожиданий (в диффе тестов 0 удалений). Открытого класса, который приходилось бы описывать словарём, у правила больше нет; остаётся неизмеренность на живой модели — вынесена в #77</td><td>ACCEPTED WITH NOTES · 04.09 — PR #76, merge <code>e5be6c3</code>; нота N-1 (<code>&lt;|im_end|&gt;</code> без теста)</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/18">#18</a></td><td><code>CasePipeline.process(case)</code> — единый PROCESS-вход: LOCAL/CLOUD-выбор по сохранённому <code>route_decision.json</code> живёт в конвейере, <code>_cmd_process</code> свёлся к «загрузить кейс → один вызов → напечатать», возобновляемый <code>run(case)</code> идёт тем же seam, реализации <code>PipelineContext</code> собираются лениво. Круг 1 отклонён за снятый вместе с ветвлением fail-closed-страж <code>local_processing</code> (кейс в <code>awaiting_human</code> уезжал в <code>needs_review</code> без оператора); круг 2 вернул отказ как <code>ProcessStepNotAllowed</code> в сам конвейер, с кодом возврата 2 и без правки состояния</td><td>ACCEPTED WITH NOTES · 04.09 — PR #74, merge <code>c735819</code>, два круга; ноты N-1…N-3 не блокирующие</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/17">#17</a></td><td>Посимвольный chunking слит в единственную реализацию <code>pipeline/chunking.py</code>: OUTBOUND держит публичный <code>chunk_text</code> и <code>ChunkCoverage</code>, GATE зовёт ту же функцию, <code>_chunk_payload</code> удалена; <code>HybridChunkerFacade</code> не тронут. Тем же PR закрыт реестровый №26: якорь заморозки §7 переведён на явный маркер <code>freeze-anchor: holder=…</code>, тихий режим «первого <code>#N</code> по тексту» закрыт тестом</td><td>ACCEPTED WITH NOTES · 04.09 — PR #73, merge <code>5669a27</code></td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/60">#60</a></td><td>Ступень 5.3: приём хвоста стал белым списком формы (один токен без пробелов ≤32 символов, без <code>{</code>, <code>[</code>, ограждения и слов управления вердиктом на двух языках); три воспроизведения кириллического пересмотра вердикта дают fail-closed, тесты PR #57 без правки ожиданий. Тем же PR закрыты реестровые №15 (<code>llm_call_failed</code> отдельно от <code>llm_unconfigured</code>) и №16 (<code>chunk_count</code> и <code>finish_reasons</code> в <code>operational-summary.json</code>). Остаток — одиночный токен-отзыв, вынесен в #71</td><td>ACCEPTED WITH NOTES · 03.09</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/44">#44</a></td><td>§2.2 в редакции 03.09: перечень словоформ заменён основой со свободным окончанием, хвост <code>(?!\w)</code>; второй список (карта множителей) удалён — единицу называет сама ветвь паттерна, инвариант проверяется тестом; <code>_STRUCTURAL_INITIALS_WORDS</code> расширен косвенными падежами</td><td>ACCEPTED · 03.09 — PR #70, merge <code>6d6ad08</code>; реестровый №19 закрыт</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/66">#66</a></td><td>Локальный archivist: канон в vault <code>notes/archivist/protocol.md</code>, репозиторий держит только тонкие адаптеры четырёх рантаймов; explicit-only проверен исполняемо для Codex и Hermes</td><td>ACCEPTED WITH NOTES · 03.09 — PR #67, merge <code>7579e6b</code>, три круга; нота 2 вынесена в #68</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/59">#59</a></td><td>Барьер <code>repo.graphify-untracked</code> не принимает транзиентные <code>.rebuild.lock</code> и <code>.graph.tmp.json</code> за накапливаемые данные: их граница остаётся в <code>.gitignore</code>, а рядом лежащий журнал по-прежнему валит гейт</td><td>ACCEPTED · 03.09 — PR #61, merge <code>5f1ceab</code></td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/58">#58</a></td><td>Канон описывает vault-only единицу: признак пустого репо-дифа, предъявление комментарием с хэшем/статами/чеклистом, приёмка без PR-контекста; смешанный диф остаётся обычной единицей</td><td>ACCEPTED · 03.09 — vault <code>7b02ad1</code></td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/33">#33</a></td><td>Ступень 5.3: правило приёма ответа с хвостом — schema-valid объект принимается, если хвост не может начать второй structured output и пересмотреть вердикт; усечённый второй объект и текстовый пересмотр остаются fail-closed</td><td>ACCEPTED WITH NOTES · 03.09 — нота в #60</td></tr>
@@ -541,32 +936,43 @@
         </tbody>
       </table>
     </div>
+    </details>
   </section>
+  </div>
+
 
   <section>
-    <h2>Цепочка наследования истины<span class="qual">внутри оси нижний уступает верхнему; между осями норма выше состояния</span></h2>
-    <div class="prose">
-      <p><strong>Ось А — норма: что система обязана делать.</strong></p>
-      <ul>
-        <li><code>specs/</code> в vault — <strong>заморожены, высшая власть.</strong> Направление власти: спека → код (<code>AGENTS.md</code> §1). Пробел или противоречие поднимается заметкой в <code>decisions/</code>, а не «чинится» в коде.</li>
-        <li><code>decisions/</code> — решения владельца, вердикты приёмки <code>acceptance-log.md</code>, реестры <code>deferred-actions.md</code> и <code>open-questions.md</code>. Применяют и уточняют норму, спеке не противоречат.</li>
-        <li>Код репозитория — следует за первыми двумя. Расхождение код ↔ спека есть дефект кода.</li>
-      </ul>
-      <p><strong>Ось Б — состояние работ: что делается сейчас.</strong></p>
-      <ul>
-        <li><strong>GitHub</strong> — тела issue, метки, нативные зависимости <code>blocked by</code> / <code>blocks</code>. <strong>Источник истины по состоянию очереди.</strong></li>
-        <li><strong>Эта доска</strong> — человеческий вид того же. Правится вручную приёмщиком, поэтому может отстать; при расхождении права GitHub.</li>
-        <li>Датированные разборы — <code>notes/review-*.html</code>, <code>notes/queue-recheck-*</code>. Несут основания и обоснование порядка. <strong>Вслед за очередью не обновляются.</strong></li>
-        <li><code>notes/archive/</code> — замороженные снимки прошлых состояний. Только для расследования.</li>
-      </ul>
-      <p><strong>Стык осей.</strong> Вердикт в <code>decisions/acceptance-log.md</code> — единственное, что переводит работу из «сделано» в «принято», и он же держатель действующих заморозок (<code>AGENTS.md</code> §7). Issue закрывается по вердикту, а не вердикт пишется по закрытой issue.</p>
+    <h2>Выбор исполнителя на issue<span class="qual">комментарий к дашборду: пять точек — уровень, слово рядом — можно ли параллелить</span></h2>
+    <details class="fold flat">
+      <summary>
+        <span class="foldhead"><span class="chev" aria-hidden="true">▸</span><b>Шкала и что она не отменяет</b><span class="foldhint">развернуть</span></span>
+    <p class="measure">Оценка отвечает на два вопроса разом: <strong>кому поручить</strong> и <strong>можно ли начинать рядом с чем-то ещё</strong>. Точки дают первое, слово — второе. Развести их пришлось намеренно: в шкале параллельность закодирована чётностью (5 и 3 — соло, 4 и 2 — параллельно), а чётность никто не запоминает и читать её глазами нельзя.</p>
+      </summary>
+
+    <div class="scale">
+        <div class="row"><span class="d"><b>●●●●●</b></span><span class="lv">Синьор · <span class="solo">соло</span></span><span class="tx">Сложная долгая работа со многими связями. Не параллелить ни с чем: пока она идёт, соседняя единица встанет на её же файлы или на её же измерение.</span></div>
+        <div class="row"><span class="d"><b>●●●●</b><i>○</i></span><span class="lv">Синьор · парал.</span><span class="tx">Сложная долгая, но независимая. Можно вести рядом с другой — общих файлов и общих гейтов нет.</span></div>
+        <div class="row"><span class="d"><b>●●●</b><i>○○</i></span><span class="lv">Мидл · <span class="solo">соло</span></span><span class="tx">Не очень сложная, но со связями. Чаще всего связь — общий файл: четыре единицы гейта приёмки (#49, #50, #64, #65) живут в одном <code>acceptance_check.py</code> и между собой не параллелятся.</span></div>
+        <div class="row"><span class="d"><b>●●</b><i>○○○</i></span><span class="lv">Мидл · парал.</span><span class="tx">Несложная, недолгая, независимая. Берётся рядом с чем угодно.</span></div>
+        <div class="row"><span class="d"><b>●</b><i>○○○○</i></span><span class="lv">Джун · парал.</span><span class="tx">Справится самый простой исполнитель: правка в одном месте, ошибка видна сразу.</span></div>
     </div>
+    <p class="measure"><strong>Ступень «Джун» сегодня пуста, и это не случайность.</strong> Даже мелкая правка доков здесь требует прочитать канон и понять, какое из четырёх мест авторитетно, — а это уже не самый простой исполнитель. Ступень оставлена: если появится единица, которую можно объяснить одной фразой без чтения канона, ей найдётся место.</p>
+    <p class="measure">Карточки владельца (<code>owner-action</code>) точек не получают: там нечего оценивать по трудоёмкости — это решение, а не работа. У них стоит <span class="pts none"><span class="dots"><i>○○○○○</i></span><span class="who">решение</span></span>.</p>
+    <p class="measure">Оценка — суждение приёмщика, а не измерение. Она подсказывает, чем и в каком порядке занять исполнителей, и <strong>не отменяет</strong> ни гейтов <code>blocked-by</code>, ни заморозки: единица на 2 точки, заблокированная нативной зависимостью, всё равно не берётся.</p>
+    </details>
   </section>
+  </div>
+</div>
 
-
-  <section>
-    <h2>Пайплайн исполнения issue<span class="qual">рекомендованный и две альтернативы, каждая проверена на этом проекте</span></h2>
+<div class="zone plain">
+  <div class="page">  <section>
+    <h2>Пайплайн исполнения issue<span class="qual">три варианта одного механизма: рекомендованный и две альтернативы, каждая проверена на этом проекте</span></h2>
+    <details class="fold flat">
+      <summary>
+        <span class="foldhead"><span class="chev" aria-hidden="true">▸</span><b>Три варианта: последовательный, конвейер, волна</b><span class="foldhint">развернуть</span></span>
     <p class="measure">Все три варианта проходят одни и те же станции — issue, ветка, PR, приёмка холодной сессией, вердикт в <code>acceptance-log.md</code>. Отличаются они одним: <strong>где стоит следующая работа, пока предыдущая не принята.</strong> Это и есть предмет выбора; всё остальное совпадает.</p>
+      </summary>
+
 
     <div class="pipes">
 
@@ -712,32 +1118,712 @@
       <p>Следующая единица трогает файлы текущей или связана с ней <code>blocked by</code> — <strong>А</strong>. Не трогает и не связана, а простой дорог — <strong>Б</strong>. Несколько единиц держит одно измерение, которое нельзя разорвать — <strong>В</strong>, и тогда первым коммитом ветки идёт слияние <code>master</code>.</p>
       <p>Во всех трёх вердикт в <code>decisions/acceptance-log.md</code> пишет холодная сессия, а не та, что писала код. Это не свойство пайплайна, а условие, при котором любой из них работает.</p>
     </div>
+    </details>
   </section>
 
   <section>
-    <h2>Как читать эту доску</h2>
-    <div class="prose">
-      <ul>
-        <li><strong>Одна issue за раз.</strong> Взять единицу с меткой <code>agent</code>, проверить, что её гейт снят и метки <code>backlog</code> нет, сделать ветку <code>issue-&lt;номер&gt;-&lt;слаг&gt;</code>, открыть PR с <code>Closes #N</code>. Объём issue не расширяется: увиденное рядом — следующая issue.</li>
-        <li><strong>Тела issue содержат только текущее состояние.</strong> Истории в них нет намеренно. Она — в архиве, ссылка ниже.</li>
-        <li><strong>Гейты между issue живут в нативных зависимостях GitHub</strong> (<code>blocked by</code> / <code>blocks</code>), а не текстом в теле: их видно в интерфейсе и в API, и они не требуют ручного обновления при закрытии блокера. Текстом в теле остаются только гейты, которые связью между issue не выражаются — мерж-гейт #16, состояние ветки у #18, строки реестра у #19, приоритет у #31; в каждом таком теле сказано, почему. Эта доска — их человеческий вид; при расхождении авторитетен GitHub.</li>
-        <li><strong>Метка <code>spec-guard</code></strong> означает, что затронута область замороженного решения или идущего измерения: в теле PR обязан быть явный результат сверки со спекой. «Поведение не меняется» аргументом не считается.</li>
-        <li><strong>«Держатель заморозки» и «Следующий шаг» — разные поля.</strong> Первое читается из последнего вердикта в <code>decisions/acceptance-log.md</code>; второе — из очереди GitHub: свободная <code>agent</code>-issue без незакрытых <code>blockedBy</code> и без <code>backlog</code>. Одно из другого не выводится, даже когда номера сейчас совпадают.</li>
-        <li><strong>У каждой карточки есть оценка.</strong> Пять точек — уровень исполнителя, слово рядом — можно ли вести единицу параллельно с другой. Шкала целиком в разделе «Оценка единицы» выше. <strong>При переписывании доски оценки переносятся вместе с карточками</strong>: они живут в блоке <code>.side</code>, рядом с чипом состояния, и восстановить их по номеру issue нельзя — это суждение, а не выводимое поле.</li>
-      <li><strong>Держатель заморозки помечен в двух местах.</strong> В сводке шапки его номер идёт в рамке (<span class="freeze-mark">#60</span>), в списке карточек — на цветном фоне с чипом <span class="chip crit">Заморозка</span>. Блок «Заморожено сейчас» объясняет, что именно заморожено; две пометки нужны затем, чтобы единицу нельзя было взять вслепую ни из сводки, ни из списка, не дочитав до блока. Отличие держится не только цветом: в сводке рамка и жирность, на карточке — слово в чипе.<br><strong>При переписывании доски переносятся обе пометки, вместе с полем «Держатель заморозки».</strong> На карточке пометка ставится атрибутом <code>data-freeze</code>, а не классом: <code>check_board_counters</code> считает буквальную строку <code>class="issue"</code>, и модификатор в классе сломал бы счётчик молча. В сводке обёртка безопасна — гейт ищет там github-ссылки, а их в строке нет.</li>
-      <li><strong>Нумерация.</strong> <code>#12</code> — только issue или PR на GitHub. Отложенные пункты и открытые вопросы пишутся через <code>№</code> с названием реестра рядом.</li>
-        <li><strong>Доску правит приёмщик</strong>, не разработчик.</li>
-      </ul>
+    <h2>Цепочка наследования истины<span class="qual">внутри оси нижний уступает верхнему; между осями норма выше состояния</span></h2>
+    <div class="axes">
+
+      <details class="fold axis">
+        <summary>
+          <span class="foldhead"><span class="chev" aria-hidden="true">▸</span><b>Ось А — норма: что система обязана делать</b><span class="foldhint">развернуть</span></span>
+          <span class="axisfig">
+            <svg viewBox="0 0 572 84" role="img" aria-label="specs в vault ведут к decisions, decisions к коду репозитория; расхождение поднимается заметкой обратно в decisions">
+              <defs><marker id="ar-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="currentColor"/></marker></defs>
+              <g>
+                <rect class="dg-box-a" x="2" y="6" width="156" height="40" rx="3"/>
+                <text class="dg-t" x="80" y="24">specs/ в vault</text>
+                <text class="dg-s" x="80" y="38">заморожены, высшая власть</text>
+
+                <rect class="dg-box" x="208" y="6" width="156" height="40" rx="3"/>
+                <text class="dg-t" x="286" y="24">decisions/</text>
+                <text class="dg-s" x="286" y="38">решения и вердикты</text>
+
+                <rect class="dg-box" x="414" y="6" width="156" height="40" rx="3"/>
+                <text class="dg-t" x="492" y="24">код репозитория</text>
+                <text class="dg-s" x="492" y="38">следует за первыми двумя</text>
+
+                <path class="dg-a" d="M158 26 H202" marker-end="url(#ar-a)"/>
+                <path class="dg-a" d="M364 26 H408" marker-end="url(#ar-a)"/>
+
+                <path class="dg-a-x" d="M492 46 V62 H286 V50" marker-end="url(#ar-a)"/>
+                <text class="dg-x" x="389" y="76">пробел или противоречие — заметкой, а не правкой кода</text>
+              </g>
+            </svg>
+          </span>
+        </summary>
+        <div class="prose">
+          <ul>
+            <li><code>specs/</code> в vault — <strong>заморожены, высшая власть.</strong> Направление власти: спека → код (<code>AGENTS.md</code> §1). Пробел или противоречие поднимается заметкой в <code>decisions/</code>, а не «чинится» в коде.</li>
+            <li><code>decisions/</code> — решения владельца, вердикты приёмки <code>acceptance-log.md</code>, реестры <code>deferred-actions.md</code> и <code>open-questions.md</code>. Применяют и уточняют норму, спеке не противоречат.</li>
+            <li>Код репозитория — следует за первыми двумя. Расхождение код ↔ спека есть дефект кода.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="fold axis">
+        <summary>
+          <span class="foldhead"><span class="chev" aria-hidden="true">▸</span><b>Ось Б — состояние работ: что делается сейчас</b><span class="foldhint">развернуть</span></span>
+          <span class="axisfig">
+            <svg viewBox="0 0 568 78" role="img" aria-label="GitHub — источник истины по очереди; доска — ручной вид; датированные разборы и архив за очередью не обновляются">
+              <defs><marker id="ar-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="currentColor"/></marker></defs>
+              <g>
+                <rect class="dg-box-a" x="2" y="14" width="128" height="40" rx="3"/>
+                <text class="dg-t" x="66" y="32">GitHub</text>
+                <text class="dg-s" x="66" y="46">issue · метки · blocked by</text>
+                <text class="dg-l" x="66" y="70">источник истины</text>
+
+                <rect class="dg-box" x="148" y="14" width="128" height="40" rx="3"/>
+                <text class="dg-t" x="212" y="32">эта доска</text>
+                <text class="dg-s" x="212" y="46">notes/issue-board.html</text>
+                <text class="dg-l" x="212" y="70">может отстать</text>
+
+                <rect class="dg-box" x="294" y="14" width="128" height="40" rx="3"/>
+                <text class="dg-t" x="358" y="32">разборы</text>
+                <text class="dg-s" x="358" y="46">notes/review-*</text>
+                <text class="dg-l" x="358" y="70">за очередью не идут</text>
+
+                <rect class="dg-box" x="440" y="14" width="126" height="40" rx="3"/>
+                <text class="dg-t" x="503" y="32">notes/archive/</text>
+                <text class="dg-s" x="503" y="46">снимки прошлого</text>
+                <text class="dg-l" x="503" y="70">для расследования</text>
+
+                <path class="dg-a" d="M130 34 H142" marker-end="url(#ar-b)"/>
+                <path class="dg-a" d="M276 34 H288" marker-end="url(#ar-b)"/>
+                <path class="dg-a" d="M422 34 H434" marker-end="url(#ar-b)"/>
+                <text class="dg-l" x="212" y="8">при расхождении права GitHub</text>
+              </g>
+            </svg>
+          </span>
+        </summary>
+        <div class="prose">
+          <ul>
+            <li><strong>GitHub</strong> — тела issue, метки, нативные зависимости <code>blocked by</code> / <code>blocks</code>. <strong>Источник истины по состоянию очереди.</strong></li>
+            <li><strong>Эта доска</strong> — <code>notes/issue-board.html</code> в vault-проекте «Ресторанная группа — юрист-консультант» — человеческий вид того же. Правится вручную приёмщиком, поэтому может отстать; при расхождении права GitHub.</li>
+            <li>Датированные разборы — <code>notes/review-*.html</code>, <code>notes/queue-recheck-*</code>. Несут основания и обоснование порядка. <strong>Вслед за очередью не обновляются.</strong></li>
+            <li><code>notes/archive/</code> — замороженные снимки прошлых состояний. Только для расследования.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="fold axis">
+        <summary>
+          <span class="foldhead"><span class="chev" aria-hidden="true">▸</span><b>Стык осей — чем работа становится принятой</b><span class="foldhint">развернуть</span></span>
+          <span class="axisfig">
+            <svg viewBox="0 0 572 96" role="img" aria-label="Работа сделана, вердикт в acceptance-log переводит её в принятую и держит заморозку; issue закрывается по вердикту, обратный ход запрещён">
+              <defs><marker id="ar-c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="currentColor"/></marker></defs>
+              <g>
+                <rect class="dg-box" x="2" y="4" width="136" height="40" rx="3"/>
+                <text class="dg-t" x="70" y="22">работа сделана</text>
+                <text class="dg-s" x="70" y="36">PR влит</text>
+
+                <rect class="dg-box-a" x="186" y="4" width="196" height="40" rx="3"/>
+                <text class="dg-t" x="284" y="22">вердикт приёмки</text>
+                <text class="dg-s" x="284" y="36">decisions/acceptance-log.md</text>
+
+                <rect class="dg-box" x="430" y="4" width="140" height="40" rx="3"/>
+                <text class="dg-t" x="500" y="22">issue закрыта</text>
+                <text class="dg-s" x="500" y="36">и принята</text>
+
+                <path class="dg-a" d="M138 24 H180" marker-end="url(#ar-c)"/>
+                <path class="dg-a" d="M382 24 H424" marker-end="url(#ar-c)"/>
+
+                <rect class="dg-box" x="2" y="62" width="170" height="28" rx="3"/>
+                <text class="dg-t" x="87" y="80">держатель заморозки</text>
+                <path class="dg-a" d="M220 44 V76 H178" marker-end="url(#ar-c)"/>
+
+                <path class="dg-a-x" d="M500 44 V54 H284 V48" marker-end="url(#ar-c)"/>
+                <text class="dg-x" x="430" y="88">вердикт не пишется по закрытой issue</text>
+              </g>
+            </svg>
+          </span>
+        </summary>
+        <div class="prose">
+          <p>Вердикт в <code>decisions/acceptance-log.md</code> — единственное, что переводит работу из «сделано» в «принято», и он же держатель действующих заморозок (<code>AGENTS.md</code> §7). Issue закрывается по вердикту, а не вердикт пишется по закрытой issue.</p>
+        </div>
+      </details>
+
     </div>
   </section>
+  </div>
+</div>
 
+<div class="zone band">
+  <div class="page">  <section>
+    <h2>Как читать эту доску</h2>
+    <div class="minis">
+      <details class="mini">
+        <summary><span class="chev" aria-hidden="true">▸</span><b>Одна issue за раз</b></summary>
+        <p>Взять единицу с меткой <code>agent</code>, проверить, что её гейт снят и метки <code>backlog</code> нет, сделать ветку <code>issue-&lt;номер&gt;-&lt;слаг&gt;</code>, открыть PR с <code>Closes #N</code>. Объём issue не расширяется: увиденное рядом — следующая issue.</p>
+      </details>
+      <details class="mini">
+        <summary><span class="chev" aria-hidden="true">▸</span><b>Тела issue содержат только текущее состояние</b></summary>
+        <p>Истории в них нет намеренно. Она — в архиве, ссылка ниже.</p>
+      </details>
+      <details class="mini">
+        <summary><span class="chev" aria-hidden="true">▸</span><b>Гейты между issue живут в нативных зависимостях GitHub</b></summary>
+        <p>(<code>blocked by</code> / <code>blocks</code>), а не текстом в теле: их видно в интерфейсе и в API, и они не требуют ручного обновления при закрытии блокера. Текстом в теле остаются только гейты, которые связью между issue не выражаются — мерж-гейт #16, очередь у #49 (та же функция, что у #72), строки реестра у #19, приоритет у #31; в каждом таком теле сказано, почему. Эта доска — их человеческий вид; при расхождении авторитетен GitHub.</p>
+      </details>
+      <details class="mini">
+        <summary><span class="chev" aria-hidden="true">▸</span><b>Метка <code>spec-guard</code></b></summary>
+        <p>означает, что затронута область замороженного решения или идущего измерения: в теле PR обязан быть явный результат сверки со спекой. «Поведение не меняется» аргументом не считается.</p>
+      </details>
+      <details class="mini">
+        <summary><span class="chev" aria-hidden="true">▸</span><b>«Держатель заморозки» и «Следующий шаг» — разные поля</b></summary>
+        <p>Первое читается из последнего вердикта в <code>decisions/acceptance-log.md</code>; второе — из очереди GitHub: свободная <code>agent</code>-issue без незакрытых <code>blockedBy</code> и без <code>backlog</code>. Одно из другого не выводится, даже когда номера сейчас совпадают. Зато «Следующий шаг» и <strong>первая карточка дорожки «Свободны» — одна и та же единица</strong>: из порядка карточек доска выводит плитку «Порядок взятия», и агент читает голову дорожки как «бери это». Совпадение проверяется исполняемо — <code>acceptance_check.py</code>, проверка <code>vault.board-order</code>. До 04.09.2026 связи не было, и доска трижды за сутки называла следующим шагом #72, держа её пятой в дорожке, проходя <code>RESULT: PASS</code> каждый раз.</p>
+      </details>
+      <details class="mini">
+        <summary><span class="chev" aria-hidden="true">▸</span><b>У каждой карточки есть оценка</b></summary>
+        <p>Пять точек — уровень исполнителя, слово рядом — можно ли вести единицу параллельно с другой. Шкала целиком в разделе «Оценка единицы» выше. <strong>При переписывании доски оценки переносятся вместе с карточками</strong>: они живут в блоке <code>.side</code>, рядом с чипом состояния, и восстановить их по номеру issue нельзя — это суждение, а не выводимое поле.</p>
+      </details>
+      <details class="mini">
+        <summary><span class="chev" aria-hidden="true">▸</span><b>Метка, состояние и условие — три разные сущности, и разведены они разметкой, а не разбором текста</b></summary>
+        <p><code>&lt;span class="gate"&gt;</code> дословно зеркалит метки GitHub — <code>agent</code>, <code>spec-guard</code>, <code>documentation</code>, <code>owner-action</code>, <code>bug</code> — и только он попадает в фильтр «Метки». Состояние в очереди несёт чип: <span class="chip go">Свободна</span>, <span class="chip hold">Ждёт</span>, <span class="chip off">Backlog</span>, <span class="chip crit">Заморозка</span>; метки <code>blocked</code> и <code>backlog</code> в <code>.gate</code> не пишутся — они говорят о состоянии, а не о работе. Условие и порядок идут в <code>&lt;span class="cond"&gt;</code> и рисуются контуром: <code>cond on</code> — условие действует, <span class="cond on">blocked-by #30</span>; <code>cond off</code> — снято, <span class="cond off">гейт снят 02.09</span>; без модификатора — порядок, <span class="cond">после #72</span>. <strong>При переписывании доски правило держится:</strong> условие, написанное в <code>.gate</code>, станет ложной меткой в фильтре, а метка, написанная своими словами вместо имени GitHub, разведёт один фасет на два.</p>
+      </details>
+      <details class="mini">
+        <summary><span class="chev" aria-hidden="true">▸</span><b>Фильтры над блоком очереди считают сами карточки</b></summary>
+        <p>Дорожка, уровень, параллельность, метки и состояние читаются из разметки при открытии страницы, поэтому новая карточка попадает в фильтры сама — проставлять ей ничего не нужно. Внутри одного фасета выбор складывается по «или», между фасетами — по «и»; дорожка, у которой фильтр скрыл все карточки, прячется вместе с заголовком. Три дорожки остаются тремя <code>&lt;section&gt;</code> внутри общей рамки: <code>check_board_counters</code> считает карточки посекционно и сверяет с тремя числами сводки шапки.</p>
+      </details>
+      <details class="mini">
+        <summary><span class="chev" aria-hidden="true">▸</span><b>Держатель заморозки помечен в двух местах</b></summary>
+        <p>В сводке шапки его номер идёт в рамке (<span class="freeze-mark">#77</span>), в списке карточек — на цветном фоне с чипом <span class="chip crit">Заморозка</span>. Блок «Заморожено сейчас» объясняет, что именно заморожено; две пометки нужны затем, чтобы единицу нельзя было взять вслепую ни из сводки, ни из списка, не дочитав до блока. Отличие держится не только цветом: в сводке рамка и жирность, на карточке — слово в чипе.<br><strong>При переписывании доски переносятся обе пометки, вместе с полем «Держатель заморозки».</strong> На карточке пометка ставится атрибутом <code>data-freeze</code>, а не классом: <code>check_board_counters</code> считает буквальную строку <code>class="issue"</code>, и модификатор в классе сломал бы счётчик молча. В сводке обёртка безопасна — гейт ищет там github-ссылки, а их в строке нет.</p>
+      </details>
+      <details class="mini">
+        <summary><span class="chev" aria-hidden="true">▸</span><b>Нумерация</b></summary>
+        <p><code>#12</code> — только issue или PR на GitHub. Отложенные пункты и открытые вопросы пишутся через <code>№</code> с названием реестра рядом.</p>
+      </details>
+      <details class="mini">
+        <summary><span class="chev" aria-hidden="true">▸</span><b>Доску правит приёмщик, не разработчик</b></summary>
+        <p>За ним четыре ручных поля, которых нет ни в GitHub, ни в коде: строка закрытой единицы в таблице «Закрыто», пометка держателя заморозки, порядок карточек в дорожке «Свободны» и поле «Следующий шаг». Первое гейтом не проверяется до сих пор (<code>vault.board-membership</code> обходит только открытые), последние два с 04.09.2026 связаны проверкой <code>vault.board-order</code>. Разработчик доску не трогает: правка карточки мимо приёмки — это состояние очереди, заявленное тем, кто его не принимал.</p>
+      </details>
+    </div>
+  </section>
+  </div>
+</div>
+
+<div class="zone invert">
+  <div class="page">
   <footer>
     <p>Иерархия источников — раздел «Цепочка наследования истины» выше. Коротко: по состоянию очереди права <a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues">GitHub</a>, эта доска — его ручной человеческий вид.</p>
-    <p>Порядок и формулировки в текущей редакции обоснованы разбором <code>notes/queue-recheck-2026-09-01.md</code> (агентская редакция, авторитетная) и <code>notes/queue-recheck-2026-09-01.html</code> (человеческая).</p>
+    <p>Структура очереди и формулировки карточек выросли из разбора 01.09 — <code>notes/queue-recheck-2026-09-01.md</code> (агентская редакция, авторитетная) и <code>notes/queue-recheck-2026-09-01.html</code> (человеческая); последний комплект разбора — <code>notes/review-index-2026-09-03-evening.md</code>. <strong>Сегодняшний порядок ни один из них не задаёт:</strong> его называет последний вердикт в <code>decisions/acceptance-log.md</code>, а разборы за очередью не идут — по построению, см. «Цепочка наследования истины», ось Б.</p>
     <p>Историческое состояние очереди до перестройки 01.09 — <code>notes/archive/issue-queue-2026-09-01/</code>: тела всех issue в прежней редакции, машинный снимок и копия прежней доски.</p>
     <p>Канон механизма — <code>notes/issue-pr-workflow.md</code>. Приёмка — <code>notes/acceptance-protocol.md</code>, раздел «Приёмка PR».</p>
   </footer>
-
 </div>
+</div>
+
+<script>
+/* Фильтры очереди и переключатель темы.
+   Фильтры читают сами карточки: уровень и параллельность — из .pts .who,
+   состояние — из чипов, метки — из .gate, дорожка — из заголовка секции.
+   Разметка карточек не меняется, поэтому новая карточка подхватывается
+   фильтрами без правки скрипта. */
+(function () {
+  var lanes = document.querySelector('.lanes');
+  var bar = document.getElementById('lane-filters');
+  if (!lanes || !bar) return;
+
+  var sections = Array.prototype.slice.call(lanes.querySelectorAll('section'));
+  var cards = Array.prototype.slice.call(lanes.querySelectorAll('.issue'));
+
+  /* ── словари: цвет и пояснение, как в панели GitHub ───────────────────── */
+  /* Имена, цвета и пояснения — как у меток репозитория: .gate зеркалит
+     GitHub, а не пересказывает его. Метки blocked и backlog сюда не попадают
+     намеренно: они говорят о состоянии единицы, и его несут чип и .cond. */
+  var LABEL = {
+    'agent':         { c: '#1D76DB', d: 'Единица работы агента-разработчика: ветка + PR' },
+    'owner-action':  { c: '#5319E7', d: 'Делает владелец/оператор руками; кода не касается' },
+    'spec-guard':    { c: '#FBCA04', d: 'Затрагивает область замороженного решения или измерения: правка требует сверки со спекой' },
+    'documentation': { c: '#0075CA', d: 'Improvements or additions to documentation' },
+    'bug':           { c: '#D73A4A', d: "Something isn't working" },
+    'priority-high': { c: '#B60205', d: 'Берётся раньше прочих свободных единиц' }
+  };
+  var LEVEL = {
+    'Синьор':  { c: '#8250df', d: 'Сложная долгая работа со многими связями' },
+    'Мидл':    { c: '#1f6feb', d: 'Средняя единица: объём умеренный, связи есть' },
+    'Джун':    { c: '#1a7f37', d: 'Правка в одном месте, ошибка видна сразу' },
+    'решение': { c: '#8a8f99', d: 'Карточка владельца: оценке по шкале не подлежит' }
+  };
+  var PAR = {
+    'соло':   { c: '#cf222e', d: 'Не параллелить: общие файлы или общее измерение' },
+    'парал.': { c: '#1a7f37', d: 'Можно вести рядом с другой единицей' }
+  };
+  var STATE = {
+    'Свободна':  { c: '#1a7f37', d: 'Можно брать сейчас' },
+    'Заморозка': { c: '#cf222e', d: 'Держатель заморозки: не брать, не дочитав блок «Заморожено сейчас»' },
+    'Ждёт':      { c: '#B60205', d: 'Метка blocked: есть незакрытая зависимость; условие названо на карточке' },
+    'Backlog':   { c: '#8a8f99', d: 'Метка backlog: планировать, не делать — ждёт своей волны' }
+  };
+  var LANE = {
+    'Свободны':   { c: '#1a7f37', d: 'Можно брать сейчас' },
+    'За гейтами': { c: '#bf8700', d: 'Ждут снятия названного условия' },
+    'Backlog':    { c: '#8a8f99', d: 'Заморожены до решения владельца' }
+  };
+
+  /* .gate несёт только имена меток GitHub — условия и порядок живут в .cond,
+     поэтому разбирать текст и угадывать, что тут метка, не приходится. */
+  function normLabel(raw) {
+    return raw.trim().toLowerCase().replace(/\s+/g, ' ') || null;
+  }
+
+  /* ── разбор карточек ──────────────────────────────────────────────────── */
+  sections.forEach(function (sec) {
+    var h = sec.querySelector('h2');
+    var qual = h ? h.querySelector('.qual') : null;
+    var name = h ? h.textContent.replace(qual ? qual.textContent : '', '').trim() : '';
+    sec._lane = name;
+    sec._cards = Array.prototype.slice.call(sec.querySelectorAll('.issue'));
+  });
+
+  cards.forEach(function (card) {
+    var pts = card.querySelector('.pts');
+    var who = (card.querySelector('.pts .who') || {}).textContent || '';
+    var parts = who.split('·').map(function (s) { return s.trim(); }).filter(Boolean);
+    var states = Array.prototype.map.call(card.querySelectorAll('.chip'), function (c) {
+      return c.textContent.trim();
+    });
+    var gate = (card.querySelector('.gate') || {}).textContent || '';
+    var labels = gate.split('·').map(normLabel).filter(function (v, i, a) {
+      return v && a.indexOf(v) === i;
+    });
+    var sec = card.closest('section');
+    card._f = {
+      lane:  sec && sec._lane ? [sec._lane] : [],
+      level: parts[0] ? [parts[0]] : [],
+      par:   parts[1] ? [parts[1]] : [],
+      state: states,
+      label: labels,
+      text:  (card.textContent + ' ' + (pts ? pts.title : '')).toLowerCase()
+    };
+  });
+
+  var FACETS = [
+    { key: 'lane',  btn: 'Дорожка',        head: 'Фильтр по дорожке',        meta: LANE },
+    { key: 'level', btn: 'Уровень',        head: 'Фильтр по уровню',         meta: LEVEL },
+    { key: 'par',   btn: 'Параллельность', head: 'Фильтр по параллельности', meta: PAR },
+    { key: 'label', btn: 'Метки',          head: 'Фильтр по метке',          meta: LABEL },
+    { key: 'state', btn: 'Состояние',      head: 'Фильтр по состоянию',      meta: STATE }
+  ];
+  var selected = {};
+  FACETS.forEach(function (f) {
+    selected[f.key] = [];
+    var seen = [];
+    cards.forEach(function (c) {
+      c._f[f.key].forEach(function (v) { if (seen.indexOf(v) < 0) seen.push(v); });
+    });
+    Object.keys(f.meta).forEach(function (k) { if (seen.indexOf(k) < 0) seen.push(k); });
+    f.values = seen;
+  });
+
+  var query = '';
+  function matches(card, skipKey) {
+    if (query && card._f.text.indexOf(query) < 0) return false;
+    for (var i = 0; i < FACETS.length; i++) {
+      var f = FACETS[i];
+      if (f.key === skipKey) continue;
+      var sel = selected[f.key];
+      if (!sel.length) continue;
+      var has = sel.some(function (v) { return card._f[f.key].indexOf(v) >= 0; });
+      if (!has) return false;
+    }
+    return true;
+  }
+
+  /* ── разметка панели ──────────────────────────────────────────────────── */
+  var searchWrap = document.createElement('label');
+  searchWrap.className = 'fsearch';
+  var search = document.createElement('input');
+  search.type = 'search';
+  search.placeholder = 'Поиск по номеру и тексту карточки';
+  search.setAttribute('aria-label', 'Поиск по карточкам очереди');
+  searchWrap.appendChild(search);
+  bar.appendChild(searchWrap);
+
+  FACETS.forEach(function (f, idx) {
+    var wrap = document.createElement('div');
+    wrap.className = 'fwrap';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'fbtn';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-haspopup', 'true');
+    btn.innerHTML = '<span class="lb"></span><span class="cnt" hidden></span><span class="caret">▾</span>';
+    btn.querySelector('.lb').textContent = f.btn;
+    wrap.appendChild(btn);
+    bar.appendChild(wrap);
+    f.wrap = wrap; f.btn = btn; f.idx = idx;
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var wasOpen = !!f.menu;
+      closeAll();
+      if (!wasOpen) openMenu(f);
+    });
+  });
+
+  var spacer = document.createElement('span');
+  spacer.className = 'fspacer';
+  bar.appendChild(spacer);
+  var count = document.createElement('span');
+  count.className = 'fcount';
+  bar.appendChild(count);
+  var reset = document.createElement('button');
+  reset.type = 'button';
+  reset.className = 'freset';
+  reset.textContent = 'Сбросить';
+  reset.hidden = true;
+  bar.appendChild(reset);
+  reset.addEventListener('click', function () {
+    FACETS.forEach(function (f) { selected[f.key] = []; });
+    query = ''; search.value = '';
+    closeAll(); apply();
+  });
+
+  var empty = document.createElement('p');
+  empty.className = 'fempty';
+  empty.hidden = true;
+  empty.textContent = 'Ни одна единица очереди не подходит под выбранные фильтры.';
+  lanes.appendChild(empty);
+
+  search.addEventListener('input', function () {
+    query = search.value.trim().toLowerCase();
+    apply();
+  });
+
+  /* ── выпадающая панель ────────────────────────────────────────────────── */
+  function closeAll() {
+    FACETS.forEach(function (f) {
+      if (f.menu) { f.menu.remove(); f.menu = null; f.btn.setAttribute('aria-expanded', 'false'); }
+    });
+  }
+
+  function openMenu(f) {
+    var menu = document.createElement('div');
+    /* последние две панели прижимаются правым краем: у правого борта блока
+       левое выравнивание вылезло бы за рамку */
+    menu.className = 'fmenu' + (f.idx >= FACETS.length - 2 ? ' right' : '');
+    menu.addEventListener('click', function (e) { e.stopPropagation(); });
+    var h = document.createElement('h4');
+    h.textContent = f.head;
+    menu.appendChild(h);
+
+    var sWrap = document.createElement('div');
+    sWrap.className = 'fmsearch';
+    var s = document.createElement('input');
+    s.type = 'search';
+    s.placeholder = 'Найти…';
+    s.setAttribute('aria-label', f.head);
+    sWrap.appendChild(s);
+    menu.appendChild(sWrap);
+
+    var list = document.createElement('div');
+    list.className = 'flist';
+    menu.appendChild(list);
+
+    var foot = document.createElement('div');
+    foot.className = 'ffoot';
+    var clr = document.createElement('button');
+    clr.type = 'button';
+    clr.textContent = 'Снять выбор';
+    foot.appendChild(clr);
+    menu.appendChild(foot);
+    clr.addEventListener('click', function () { selected[f.key] = []; draw(); apply(); });
+
+    function row(v, n) {
+      var meta = f.meta[v] || {};
+      var on = selected[f.key].indexOf(v) >= 0;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'fopt';
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      if (!n && !on) b.setAttribute('data-empty', '1');
+      b.innerHTML = '<span class="box">✓</span><span class="dot"></span>' +
+        '<span class="nm"><span class="v"></span><span class="n"></span></span>' +
+        (meta.d ? '<span class="ds"></span>' : '');
+      b.querySelector('.dot').style.background = meta.c || 'var(--ink-faint)';
+      b.querySelector('.v').textContent = v;
+      b.querySelector('.n').textContent = n;
+      if (meta.d) b.querySelector('.ds').textContent = meta.d;
+      b.addEventListener('click', function () {
+        var i = selected[f.key].indexOf(v);
+        if (i < 0) selected[f.key].push(v); else selected[f.key].splice(i, 1);
+        draw(); apply();
+      });
+      return b;
+    }
+
+    function draw() {
+      var q = s.value.trim().toLowerCase();
+      list.innerHTML = '';
+      var counts = {};
+      f.values.forEach(function (v) {
+        counts[v] = cards.filter(function (c) {
+          return c._f[f.key].indexOf(v) >= 0 && matches(c, f.key);
+        }).length;
+      });
+      var vis = f.values.filter(function (v) {
+        var meta = f.meta[v] || {};
+        return !q || v.toLowerCase().indexOf(q) >= 0 || (meta.d || '').toLowerCase().indexOf(q) >= 0;
+      });
+      var on = vis.filter(function (v) { return selected[f.key].indexOf(v) >= 0; });
+      var off = vis.filter(function (v) { return selected[f.key].indexOf(v) < 0; });
+      if (!vis.length) {
+        var none = document.createElement('p');
+        none.className = 'fnone';
+        none.textContent = 'Ничего не найдено.';
+        list.appendChild(none);
+      }
+      if (on.length) {
+        var g1 = document.createElement('p');
+        g1.className = 'fgroup';
+        g1.textContent = 'Выбрано';
+        list.appendChild(g1);
+        on.forEach(function (v) { list.appendChild(row(v, counts[v])); });
+      }
+      if (off.length) {
+        var g2 = document.createElement('p');
+        g2.className = 'fgroup';
+        g2.textContent = on.length ? 'Остальные' : 'Варианты';
+        list.appendChild(g2);
+        off.forEach(function (v) { list.appendChild(row(v, counts[v])); });
+      }
+    }
+
+    s.addEventListener('input', draw);
+    draw();
+    f.wrap.appendChild(menu);
+    f.menu = menu;
+    f.btn.setAttribute('aria-expanded', 'true');
+    s.focus();
+  }
+
+  document.addEventListener('click', closeAll);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeAll();
+  });
+
+  /* ── применение ───────────────────────────────────────────────────────── */
+  function apply() {
+    var shown = 0;
+    cards.forEach(function (c) {
+      var ok = matches(c, null);
+      c.hidden = !ok;
+      if (ok) shown++;
+    });
+    /* дорожка целиком пустая — прячется вместе с заголовком: пустой заголовок
+       читается как «единиц нет вообще», а их скрыл фильтр */
+    sections.forEach(function (sec) {
+      sec.hidden = sec._cards.length > 0 && sec._cards.every(function (c) { return c.hidden; });
+    });
+    empty.hidden = shown !== 0;
+    var active = FACETS.some(function (f) { return selected[f.key].length; }) || !!query;
+    count.textContent = active ? ('показано ' + shown + ' из ' + cards.length)
+                               : (cards.length + ' единиц');
+    reset.hidden = !active;
+    FACETS.forEach(function (f) {
+      var n = selected[f.key].length;
+      var c = f.btn.querySelector('.cnt');
+      c.hidden = !n;
+      c.textContent = n;
+    });
+  }
+
+  apply();
+})();
+
+/* Переключатель темы — две кнопки.
+   «Auto» отдаёт решение системе (data-theme снимается). Вторая кнопка
+   переключает день/ночь и одновременно показывает, что сейчас на экране:
+   в режиме Auto иконка приглушена — тема не зафиксирована и поедет за
+   системой; при явном выборе подсвечена. Клик по ней всегда фиксирует
+   тему, обратную видимой. */
+(function () {
+  var sw = document.getElementById('themesw');
+  if (!sw) return;
+  var auto = document.getElementById('theme-auto');
+  var toggle = document.getElementById('theme-toggle');
+  var sun = document.getElementById('ico-sun');
+  var moon = document.getElementById('ico-moon');
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+  function read() {
+    try {
+      var t = localStorage.getItem('board-theme');
+      return t === 'light' || t === 'dark' ? t : 'auto';
+    } catch (e) { return 'auto'; }
+  }
+  function save(mode) {
+    try {
+      if (mode === 'auto') localStorage.removeItem('board-theme');
+      else localStorage.setItem('board-theme', mode);
+    } catch (e) {}
+  }
+  function effective(mode) {
+    if (mode !== 'auto') return mode;
+    return mq && mq.matches ? 'dark' : 'light';
+  }
+  function paint(mode) {
+    if (mode === 'auto') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', mode);
+    var eff = effective(mode);
+    /* через атрибут, а не свойство: SVGElement не наследует HTMLElement,
+       и svg.hidden = false поставил бы JS-свойство, не сняв разметочный
+       hidden — иконка луны не появлялась бы никогда */
+    sun.toggleAttribute('hidden', eff !== 'light');
+    moon.toggleAttribute('hidden', eff !== 'dark');
+    auto.setAttribute('aria-pressed', mode === 'auto' ? 'true' : 'false');
+    toggle.setAttribute('data-auto', mode === 'auto' ? '1' : '0');
+    toggle.setAttribute(
+      'aria-label',
+      (eff === 'dark' ? 'Сейчас ночная тема' : 'Сейчас дневная тема') +
+      (mode === 'auto' ? ' по настройке системы' : ' — выбрана вручную') +
+      '. Переключить на ' + (eff === 'dark' ? 'дневную' : 'ночную')
+    );
+    toggle.title = toggle.getAttribute('aria-label');
+  }
+  function set(mode) { save(mode); paint(mode); }
+
+  auto.addEventListener('click', function () { set('auto'); });
+  toggle.addEventListener('click', function () {
+    set(effective(read()) === 'dark' ? 'light' : 'dark');
+  });
+  /* пока держится Auto, система может сменить тему под нами — иконка обязана
+     показывать то, что на экране, а не то, что было при загрузке */
+  if (mq) {
+    var onChange = function () { if (read() === 'auto') paint('auto'); };
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else if (mq.addListener) mq.addListener(onChange);
+  }
+
+  paint(read());
+})();
+</script>
+<script>
+/* Сводка по закрытым единицам. Считается из самой таблицы, поэтому новая
+   строка вердикта попадает в цифры без правки скрипта. Таблица остаётся
+   в DOM и в файле — свёрнут только её показ. */
+(function () {
+  var box = document.getElementById('closed-stats');
+  var table = document.getElementById('closed-table');
+  if (!box || !table) return;
+  var rows = Array.prototype.slice.call(table.querySelectorAll('tbody tr'));
+  var notes = 0, clean = 0, other = 0;
+  rows.forEach(function (r) {
+    var v = (r.lastElementChild || {}).textContent || '';
+    if (/ACCEPTED WITH NOTES/i.test(v)) notes++;
+    else if (/ACCEPTED/i.test(v)) clean++;
+    else other++;
+  });
+  var first = rows[0];
+  var last = '—';
+  if (first) {
+    var when = ((first.lastElementChild || {}).textContent || '').match(/\d{2}\.\d{2}/);
+    var num = (first.querySelector('a') || {}).textContent || '';
+    last = (when ? when[0] : '') + (num ? ' · ' + num : '');
+  }
+  function tile(k, v, cls) {
+    return '<span><span class="k">' + k + '</span><span class="v' +
+      (cls ? ' ' + cls : '') + '">' + v + '</span></span>';
+  }
+  /* Таймлайн: даты берутся из тех же строк таблицы, что и плитки, поэтому
+     новая строка появляется на оси сама. Года в ячейке нет; порядок строк
+     на год опираться не даёт — таблица отсортирована не строго. Поэтому год
+     считается от самой даты: вердикта из будущего быть не может, значит
+     месяц больше текущего — это прошлый год. Доска, пролежавшая больше года
+     без вердиктов, такому правилу не поддаётся, но и оси на ней уже нет. */
+  function timeline(span) {
+    var today = new Date(), nowY = today.getFullYear(), nowM = today.getMonth() + 1;
+    var perDay = {}, order = [];
+    rows.forEach(function (r) {
+      var m = ((r.lastElementChild || {}).textContent || '').match(/(\d{2})\.(\d{2})/);
+      if (!m) return;
+      var d = +m[1], mo = +m[2], y = mo > nowM ? nowY - 1 : nowY;
+      var key = y + '-' + m[2] + '-' + m[1];
+      if (!(key in perDay)) {
+        perDay[key] = { n: 0, label: m[1] + '.' + m[2], t: Date.UTC(y, mo - 1, d) };
+        order.push(key);
+      }
+      perDay[key].n++;
+    });
+    if (order.length < 2) return '';
+    var pts = order.map(function (k) { return perDay[k]; })
+      .sort(function (a, b) { return a.t - b.t; });
+    var day = 86400000, html = '';
+    pts.forEach(function (p, i) {
+      if (i) {
+        var gap = Math.max(1, Math.round((p.t - pts[i - 1].t) / day));
+        html += '<span class="tl-seg" style="flex-grow:' + gap + '"></span>';
+      }
+      html += '<span class="tl-pt' + (i === pts.length - 1 ? ' now' : '') +
+        '" title="' + p.label + ' — вердиктов: ' + p.n + '"><span class="tl-dot">' +
+        p.n + '</span><span class="tl-d">' + p.label + '</span></span>';
+    });
+    return '<span class="tl" style="--tlspan:' + span + '"><span class="tl-line">' +
+      html + '</span></span>';
+  }
+
+  var tiles =
+    tile('закрыто единиц', rows.length) +
+    tile('ACCEPTED', clean, 'ok') +
+    tile('с нотами', notes, 'note') +
+    tile('последний вердикт', last, 'sm') +
+    /* «поглощена» — не вердикт приёмки, поэтому отдельной плиткой и только
+       когда такие строки есть */
+    (other ? tile('прочее', other) : '');
+  /* ось занимает хвост последней строки сетки: сколько колонок осталось от
+     четырёх, столько и берёт; ровно заполненная строка отдаёт ей всю ширину */
+  var count = other ? 5 : 4;
+  box.innerHTML = tiles + timeline((4 - (count % 4)) % 4 || 4);
+})();
+</script>
+
+<script>
+/* Порядок взятия в слепке состояния. Источник — сами карточки дорожки
+   «Свободны» в том порядке, в каком их выстроил приёмщик; поле показывает
+   столько шагов, сколько влезло в отведённый хвост строки плиток, остальные
+   сворачивает в «+N» и держит в подсказке. Пересчитывается на resize. */
+(function () {
+  var host = document.getElementById('take-order');
+  if (!host) return;
+  var cell = host.parentNode;
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.lanes .issue'));
+  var nums = cards.filter(function (c) {
+    var chips = Array.prototype.map.call(c.querySelectorAll('.chip'), function (x) {
+      return x.textContent.trim();
+    });
+    return chips.indexOf('Свободна') >= 0 && chips.indexOf('Заморозка') < 0;
+  }).map(function (c) {
+    var a = c.querySelector('.no a');
+    return a ? a.textContent.trim() : '';
+  }).filter(Boolean);
+  if (nums.length < 2) return;
+  cell.hidden = false;
+  cell.title = 'Желательный порядок взятия: ' + nums.join(' → ');
+
+  /* хвост строки: сколько колонок осталось от фактической сетки */
+  var grid = cell.parentNode;
+  var cols = (getComputedStyle(grid).gridTemplateColumns || '').split(' ').filter(Boolean).length || 4;
+  var used = grid.children.length - 1;
+  cell.style.setProperty('--ordspan', String(cols - (used % cols) || cols));
+
+  function paint(k) {
+    var parts = nums.slice(0, k).map(function (n) { return '<b>' + n + '</b>'; }).join('<i>→</i>');
+    var rest = nums.length - k;
+    host.innerHTML = parts + (rest > 0 ? '<u>+' + rest + '</u>' : '');
+  }
+  function fit() {
+    var k = nums.length;
+    paint(k);
+    /* без раскладки (печать, скрытый блок) ширина нулевая — тогда режем до
+       трёх шагов вслепую, а не оставляем всю очередь в одну строку */
+    if (!host.clientWidth) { paint(Math.min(3, nums.length)); return; }
+    while (k > 1 && host.scrollWidth > host.clientWidth + 1) { k--; paint(k); }
+  }
+  fit();
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(host);
+  else window.addEventListener('resize', fit);
+})();
+</script>
+
 </body>
 </html>
