@@ -31,7 +31,7 @@
   }
   .card {
     display: flex; align-items: center; gap: 22px;
-    text-decoration: none;
+    text-decoration: none; color: inherit;
     background: #FFFFFF; border: 1px solid rgba(26,29,26,.12);
     border-radius: 12px; padding: 20px 22px;
     transition: border-color .15s, transform .15s, box-shadow .15s;
@@ -45,7 +45,7 @@
     .card:hover { border-color: #7FB89A; box-shadow: 0 6px 18px rgba(0,0,0,.35); }
   }
   .card img {
-    display: block; width: 40%; max-width: 400px; min-width: 260px; flex-shrink: 0;
+    display: block; width: 40%; max-width: 400px; min-width: 260px; flex-shrink: 0; height: auto;
     aspect-ratio: 16 / 9; object-fit: cover;
     border-radius: 8px;
     border: 1px solid rgba(26,29,26,.10);
