@@ -680,7 +680,7 @@
     <p class="lede">Единица работы — issue. Работа вне issue не начинается. Состояние держится в этом файле; правит его приёмщик.</p>
     <p class="meta">
       <span>обновлено 5 сентября 2026</span>
-      <span>14 открытых · 30 закрытых</span>
+      <span>12 открытых · 35 закрытых</span>
       <span>github.com/DeepSpaceWombat/AM-legal-agent</span>
     </p>
   </header>
@@ -688,8 +688,8 @@
   <div class="tally">
     <div>
       <p class="eyebrow">Свободны</p>
-      <p class="n go">11</p>
-      <p class="note">#72 · #16 · #30 · #15 · #49 · #50 · #62 · #63 · #64 · #65 · #68</p>
+      <p class="n go">9</p>
+      <p class="note">#87 · #15 · #49 · #50 · #62 · #63 · #64 · #65 · #68</p>
     </div>
     <div>
       <p class="eyebrow">За гейтами</p>
@@ -710,7 +710,7 @@
       <span class="foldstat snap">
         <span><span class="k">Заморожено сейчас</span><span class="v sm crit"><code>_validate_response</code></span></span>
         <span><span class="k">Держатель заморозки</span><span class="v sm">issue <span class="freeze-mark" title="Держатель заморозки">#77</span></span></span>
-        <span><span class="k">Следующий шаг</span><span class="v sm">issue #72</span></span>
+        <span><span class="k">Следующий шаг</span><span class="v sm">issue #87</span></span>
         <span><span class="k">Разморожено</span><span class="v sm ok"><code>_chunk_payload</code></span></span>
         <span><span class="k">Заморозка передана</span><span class="v sm">04.09 · PR #76</span></span>
         <span class="ord" hidden><span class="k">Порядок взятия</span><span class="v ordline" id="take-order"></span></span>
@@ -718,11 +718,11 @@
       </summary>
       <div class="prose snapbody">
       <p><strong>Держатель заморозки</strong> — issue <strong>#77</strong>: её закрытие снимает заморозку <code>_validate_response</code>.</p>
-    <p><strong>Следующий шаг</strong> — issue <strong>#72</strong>: свободная <code>agent</code>-issue без незакрытых <code>blockedBy</code>, которую агент берёт сейчас (<code>vault.freeze-anchor</code> не умеет выражать «заморозка есть, держателя нет» — из-за этого приёмка PR #76 была вынуждена назначить держателя #77, а не снять заморозку).</p>
-    <p><strong>Почему разошлись:</strong> держатель читается из последнего вердикта в <code>decisions/acceptance-log.md</code>, следующий шаг — из очереди GitHub. #77 — операционный перепрогон, он сам стоит за гейтом #30 и взять его сейчас нельзя; поэтому поля впервые называют разные единицы.</p>
+    <p><strong>Следующий шаг</strong> — issue <strong>#87</strong>: зонды 5.3 не импортируются на <code>master</code> (<code>_chunk_payload</code> переехал в <code>chunking.chunk_text</code>), и прогон #77 упал бы на импорте до первого запроса. Первая свободная <code>agent</code>-issue в сохранённом порядке очереди и единственный блокер держателя заморозки. PR #86 принят и слит 05.09, #30 закрыта: оснастка 5.3 живёт в <code>scripts/probe/</code>, у <code>probe27.py</code> есть JSONL-heartbeat по запросу.</p>
+    <p><strong>Почему разошлись:</strong> держатель читается из последнего вердикта в <code>decisions/acceptance-log.md</code>, следующий шаг — из очереди GitHub. #77 — операционный перепрогон, он сам стоит за гейтом #87 и взять его сейчас нельзя; поэтому поля впервые называют разные единицы.</p>
     <p class="lead"><code>_validate_response</code> в <code>pipeline/anonymize/gate_llm.py</code> — держатель <strong>#77</strong>. <code>_chunk_payload</code> <strong>разморожена</strong>.</p>
     <p><strong>Синхронизировано 02.09 приёмкой PR #40 (issue #14).</strong> Пересдача F-3 снята: 15 PASS / 16, остаточных находок PII ноль на всех ходах. Сравнение с базой F-3 завершено, поэтому заморозка <code>_chunk_payload</code> снята — её держала сопоставимость измерения, а измерение закрыто. Решение владельца 02.09.</p>
-    <p><strong>Вторая функция держится дальше.</strong> Приёмка PR #76 (04.09) закрыла #71 и передала заморозку <strong>#77</strong>: правило приёма хвоста стало точным allowlist (<code>Готово.</code>, <code>&lt;/s&gt;</code>, <code>&lt;|im_end|&gt;</code>), известного кодового отказа у него больше нет, но операционный перепрогон ступени 5.3 так и не состоялся и померяет уже это правило — правка <code>_validate_response</code> вне держателя рвёт сопоставимость молча. Держателя пришлось назначить, а не снять заморозку: состояние «заморозка есть, держателя нет» механически невыразимо, пока открыта #72. До этого заморозку держали #71 (передача приёмкой PR #69, 03.09) и #60 (передача приёмкой PR #57, 03.09).</p>
+    <p><strong>Вторая функция держится дальше.</strong> Приёмка PR #76 (04.09) закрыла #71 и передала заморозку <strong>#77</strong>: правило приёма хвоста стало точным allowlist (<code>Готово.</code>, <code>&lt;/s&gt;</code>, <code>&lt;|im_end|&gt;</code>), известного кодового отказа у него больше нет, но операционный перепрогон ступени 5.3 так и не состоялся и померяет уже это правило — правка <code>_validate_response</code> вне держателя рвёт сопоставимость молча. PR #82 принят 05.09: симметричное «нет держателя» с датой и ссылкой на вердикт теперь выразимо в обоих источниках. Это не снимает действующую заморозку #77: операционный перепрогон остаётся незавершённым. До этого заморозку держали #71 (передача приёмкой PR #69, 03.09) и #60 (передача приёмкой PR #57, 03.09).</p>
     <p>Держатель заморозки перечитывается из последнего вердикта в <code>decisions/acceptance-log.md</code>, а не угадывается по номеру issue. <code>AGENTS.md</code> §7 и эта карточка называют одну и ту же issue; совпадение проверяется исполняемо — <code>acceptance_check.py</code>, проверки <code>repo.freeze-anchor</code> и <code>vault.freeze-anchor</code>.</p>
       </div>
     </details>
@@ -738,33 +738,13 @@
   <section>
     <h2>Свободны<span class="qual">можно брать сейчас</span></h2>
     <div class="board">
-
-
       <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/72">#72</a></p>
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/87">#87</a></p>
         <div class="what">
-          <h3>Гейт заморозки: «держателя нет» невыразимо</h3>
-          <p>Нота N-2 приёмки PR #69, <strong>решение владельца 03.09 — вариант A</strong>. <code>repo.freeze-anchor</code> допускает якорь без номера, <code>vault.freeze-anchor</code> — нет, поэтому «заморозка снята, держателя нет» механически невыразимо: гейт дешевле пройти, назначив держателя, чем разморозив. Обе проверки учатся принимать явное «нет» + ссылку на вердикт; смешанное состояние остаётся <code>FAIL</code>. Хрупкость самого якоря (§7 держится на упоминании размороженной <code>_chunk_payload</code>) — вне границ.</p>
+          <h3>Зонды 5.3 не импортируются на master: <code>_chunk_payload</code> переехал в <code>chunking.chunk_text</code></h3>
+          <p>Импорт падает <code>ImportError</code> до первого запроса: функция слита в <code>pipeline/chunking.py</code> под именем <code>chunk_text</code> и возвращает кортеж <code>(chunks, coverage)</code>. Прогоны #27 и #28 шли образом <code>f673dff</code>, где функция ещё была на месте; #77 пойдёт более новой ревизией и упадёт. Правка оснастки — отдельным PR <strong>до</strong> прогона, по норме заметки <code>probe-rig-location-2026-09-04</code>. Единственный блокер держателя заморозки #77.</p>
         </div>
-        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — та же функция check_board_freeze, что у #49, поэтому идут по очереди. Первой берётся эта: пока «держателя нет» невыразимо, заморозку дешевле передать, чем снять (вердикты PR #76, #78, #79)."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
-      </div>
-
-      <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/16">#16</a></p>
-        <div class="what">
-          <h3>CaseWorkspace — единственная власть над раскладкой диска</h3>
-          <p>Раскладка §11 живёт в трёх местах, одно из них — <code>_PURGE_DIRS</code> в удаляющем пути. Единственный кандидат консолидации, чья поломка бьёт в юридическую тайну. Разработка свободна. <strong>Мерж-гейт снят 02.09:</strong> пересдача F-3 состоялась (15 PASS / 16), решение владельца принято, волна слита в <code>master</code> (PR #47). Ограничение, стоявшее в этой карточке с 01.09, больше не действует.</p>
-        </div>
-        <div class="side"><span class="pts" title="5/5 · Синьор · не параллелить — Раскладка §11 в трёх местах, одно из них — _PURGE_DIRS в удаляющем пути. Поломка бьёт в юридическую тайну."><span class="dots"><b>●●●●●</b></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">agent · spec-guard</span><span class="cond off">гейт снят 02.09</span></div>
-      </div>
-
-      <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/30">#30</a></p>
-        <div class="what">
-          <h3>Инструментовка прогона: JSONL по чанку и небуферизованный stdout</h3>
-          <p>Не наблюдаемость — выходные переменные #28: <code>validation</code>, primary/repair, <code>finding_count</code>, <code>residual_count</code> в момент запроса, а не в конце хода. <strong>Гейт снят 04.09:</strong> #34 закрыта, форма сдачи задана заметкой <code>probe-rig-location-2026-09-04</code> — два коммита в PR (импорт оснастки байт-в-байт в <code>scripts/probe/</code>, затем инструментовка), четыре разрешённых пути, <code>scp -r</code> каталога запрещён.</p>
-        </div>
-        <div class="side"><span class="pts" title="4/5 · Синьор · можно параллелить — Инструментовка не должна возмущать измерение — это и есть сложность."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent</span><span class="cond off">гейт снят 04.09</span></div>
+        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Правка на одну строку импорта плюс распаковка кортежа; сложность не в коде, а в дисциплине «до прогона, не во время»."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
       </div>
 
       <div class="issue">
@@ -782,7 +762,7 @@
           <h3>Гейт заморозки: объяснение расхождения искать в блоке «Заморожено сейчас»</h3>
           <p>Нота 1 приёмки PR #48. При расхождении полей <code>check_board_freeze</code> ищет объяснение по всему видимому тексту доски: когда поля разойдутся, гейт удовлетворится фразой из любого места, включая устаревшую от прошлого расхождения. Сузить до блока, из которого читаются оба поля.</p>
         </div>
-        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #50, #64, #65, #72; с #72 совпадает сама функция check_board_freeze — и #72 идёт первой, поэтому сужение окна ложится поверх её правки."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">agent</span><span class="cond">после #72</span></div>
+        <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #50, #64, #65; сужение окна ложится поверх принятой правки #72 / PR #82."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">agent</span><span class="cond off">#72 принята 05.09</span></div>
       </div>
 
       <div class="issue">
@@ -852,7 +832,7 @@
           <h3>Ступень 5.3: операционный перепрогон на живой модели против allowlist хвоста</h3>
           <p>Правило приёма хвоста переписано дважды (PR #69, PR #76), но ни одна редакция не измерена: последний прогон #27 снят на прежнем правиле. Риск теперь обратный — штатный хвост вне трёх разрешённых значений превращает нормальный ответ в FAIL. Ноль правок кода: единица измеряет <code>_validate_response</code>, а не чинит её.</p>
         </div>
-        <div class="side"><span class="pts" title="4/5 · Синьор · не параллелить — Операционный прогон на живой модели: ноль правок кода, но результат правит правило приёма ответа ступени."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip crit">Заморозка</span><span class="chip hold">Ждёт</span><span class="gate">agent · spec-guard</span><span class="cond on">blocked-by #30</span></div>
+        <div class="side"><span class="pts" title="4/5 · Синьор · не параллелить — Операционный прогон на живой модели: ноль правок кода, но результат правит правило приёма ответа ступени."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip crit">Заморозка</span><span class="chip hold">Ждёт</span><span class="gate">agent · spec-guard</span><span class="cond on">blocked-by #87</span></div>
       </div>
 
     </div>
@@ -896,6 +876,11 @@
       <table id="closed-table">
         <thead><tr><th>Issue</th><th>Что закрыто</th><th>Вердикт</th></tr></thead>
         <tbody>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/30">#30</a></td><td>PR #86: измерительная оснастка 5.3 импортирована в <code>scripts/probe/</code> байт-в-байт (три суммы совпали с закреплёнными, ровно четыре пути, <code>scp -r</code> не применялся), затем <code>probe27.py</code> получил JSONL-heartbeat по <strong>запросу</strong>: <code>turn_start</code> / <code>request</code> / <code>run_end</code>, построчный флаш, отдельный файл — <code>progress.log</code> не тронут по формату. Приватность проверена приёмщиком построчно по всем трём точкам вывода: только числа, коды и фиксированные классификации; <code>value</code> находки не выходит нигде, <code>finish_reason</code> транспортной ошибки — имя класса исключения. <code>src/</code> и <code>specs/</code> не тронуты, заморозка <code>_validate_response</code> держится #77</td><td>ACCEPTED WITH NOTES · 05.09 — merge <code>31a1e79</code>; ноты N‑1 (объявленная зависимость #87 → #77 не была выражена нативно, выставлена приёмкой), N‑2 (таблица сумм в <code>scripts/probe/README.md</code> — база импорта, текущая сумма <code>probe27.py</code> в ней не названа)</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/16">#16</a></td><td>PR #84: <code>CaseWorkspace</code> стал единственной властью над раскладкой §11 и retention-классами; удаляющий путь, аудит-запись, читатели и производители именованных артефактов идут за одним контрактом. Нормативная раскладка и retention не менялись</td><td>ACCEPTED · 05.09 — merge <code>5848ec6</code></td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/85">#85</a></td><td>Возврат PR #84: четыре записи ANONYMIZE, <code>case.yaml</code> и <code>parsed/attachments</code> переведены на именованные свойства; шесть producer-тестов доказали расхождение на <code>a82d273</code> и закрытие на <code>fd5236f</code></td><td>ACCEPTED · 05.09 — в составе PR #84</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/72">#72</a></td><td>PR #82: симметричное «нет держателя» с датой и ссылкой на вердикт; неполные реквизиты и смешанные состояния дают FAIL</td><td>ACCEPTED · 05.09</td></tr>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/83">#83</a></td><td>Возврат PR #82: HTML-ссылка, оба порядка реквизитов, границы поля, дословный чеклист и диагностика обеих сторон при односторонней ошибке подтверждены</td><td>ACCEPTED · 05.09</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/81">#81</a></td><td>Ноты N‑1 и N‑2 вердикта #34 закрыты парой «конвенция + механическая проверка». Конвенции в <code>issue-pr-workflow</code> и <code>acceptance-protocol</code>: заметка ссылается на реестр, а не пересказывает его; устаревший текст прячется под <code>%%…%%</code> с <code>amended-by:</code>, а не удаляется; в теле issue и PR — путь файла, хэш vault-коммита только в <code>acceptance-log</code>, после <code>push</code> и с <code>merge-base --is-ancestor</code>. Гейты <code>vault.deferred-backref</code> (абзац, называющий закрытую строку реестра ожидающей релиз-гейта) и <code>vault.hash-alive</code> (процитированный vault-коммит обязан резолвиться) обходят <code>decisions/</code> и <code>notes/</code> рекурсивно, <code>archive/</code> исключён как датированный снимок. Первый прогон по живому vault нашёл два настоящих дефекта: сгнивший <code>86fed23</code> в вердикте №26 и незакрытый <code>%%</code>-комментарий в <code>probe-rig-location</code>. Единица заведена задним числом (вариант A): работа шла без issue, приёмка вернула PR по форме, канон не правился</td><td>ACCEPTED · 05.09 — PR #80, merge <code>8c958eb</code>; два круга, ноты N‑1…N‑4 первого круга закрыты в этом же PR</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/34">#34</a></td><td>Решение владельца — вариант A: измерительная оснастка ступени 5.3 переезжает в репозиторий, <code>scripts/probe/</code>. Граница записана явно: не <code>src/</code>, вне устанавливаемого пакета, вне нормативного pytest, зависимость односторонняя. Закреплённые хэши старых комплектов не пересчитываются — связность держит правило импорта байт-в-байт; суммы <code>probe27.py</code> и <code>probe28.py</code> сверены на хосте и совпали. Осмотр дал две поправки к тексту issue: <code>probe-live.py</code> не существует (сайдкар — <code>docker logs -f</code> плюс <code>tail -F</code>), зондов три, а не два</td><td>ACCEPTED WITH NOTES · 04.09 — owner-action, заметка <code>probe-rig-location-2026-09-04</code>; ноты N-1 (раздел «спека правится не сейчас» устарел в тот же день) и N-2 (ссылка на vault-коммит не выжила)</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/29">#29</a></td><td>Профиль локальной модели попал в комплект доказательств исполняемо: раздел 3 обоих runbook'ов (en+ru) получил единый блок сбора <code>model-profile.txt</code> — <code>ollama show --modelfile</code> (параметры тега), <code>ollama list</code> и <code>ollama show</code> (digest), <code>ollama ps</code> при загруженной модели (фактические <code>CONTEXT</code> и распределение CPU/GPU). Закреплено требование класть слепок рядом с digest образа и контрольной суммой входа для каждого измерения GATE 5.3 и каждого прогона F-3 и прямо сказано, что имя тега профилем не является: <code>:latest</code> — движущаяся цель, одного digest мало. Отдельный скрипт не заводился</td><td>ACCEPTED WITH NOTES · 04.09 — PR #79, merge <code>76fb436</code>; ноты N-1 (порядок разделов) и N-2 (<code>set -euo pipefail</code> в интерактивной вставке)</td></tr>
