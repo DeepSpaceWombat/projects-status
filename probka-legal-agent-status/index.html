@@ -680,7 +680,7 @@
     <p class="lede">Единица работы — issue. Работа вне issue не начинается. Состояние держится в этом файле; правит его приёмщик.</p>
     <p class="meta">
       <span>обновлено 5 сентября 2026</span>
-      <span>13 открытых · 38 закрытых</span>
+      <span>12 открытых · 39 закрытых</span>
       <span>github.com/DeepSpaceWombat/AM-legal-agent</span>
     </p>
   </header>
@@ -688,8 +688,8 @@
   <div class="tally">
     <div>
       <p class="eyebrow">Свободны</p>
-      <p class="n go">10</p>
-      <p class="note">#94 · #92 · #15 · #49 · #50 · #62 · #63 · #64 · #65 · #68</p>
+      <p class="n go">9</p>
+      <p class="note">#94 · #92 · #15 · #49 · #50 · #62 · #64 · #65 · #68</p>
     </div>
     <div>
       <p class="eyebrow">За гейтами</p>
@@ -792,15 +792,6 @@
       </div>
 
       <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/63">#63</a></p>
-        <div class="what">
-          <h3>Дневной каталог graphify-out/ — слот на день, а не снимок</h3>
-          <p>Каталог <code>graphify-out/2026-ММ-ДД/</code> перезаписывается каждой пересборкой последним состоянием перед перезаписью — это поведение <code>backup_if_protected</code>, проверенное по исходникам. Ничего не сломано: класс файла определён верно (#46), барьер #53 это ловить не должен. Цена в словах: закоммиченный днём каталог сдвигается после коммита, и «снимок дня» читается как запись, которой он до полуночи не является. Развилка владельца: назвать мутацию нормой в <code>AGENTS.md</code> (рекомендация исполнителя) или коммитить после смены суток.</p>
-        </div>
-        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — После решения владельца — одна-две фразы в AGENTS.md."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent · documentation</span><span class="cond on">решение владельца, затем доки</span></div>
-      </div>
-
-      <div class="issue">
         <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/64">#64</a></p>
         <div class="what">
           <h3>Гейт: таблица «Закрыто» на доске не сверяется</h3>
@@ -885,6 +876,7 @@
       <table id="closed-table">
         <thead><tr><th>Issue</th><th>Что закрыто</th><th>Вердикт</th></tr></thead>
         <tbody>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/63">#63</a></td><td>PR #95: решение владельца исполнено вариантом 1 — <code>AGENTS.md</code> называет <code>graphify-out/2026-ММ-ДД/</code> слотом на день, объясняет перезапись последним состоянием перед overwrite, допустимость внутридневного коммита, штатное последующее <code>M</code> и сохранение барьера для нового untracked-каталога. Формулировка сверена приёмщиком с исходником <code>graphify.export.backup_if_protected</code>; <code>specs/</code>, код и артефакты <code>graphify-out/</code> не тронуты</td><td>ACCEPTED WITH NOTES · 05.09 — PR #95, merge <code>22637e8</code>; нота N‑1 (первый пункт чеклиста был пересказан, а не скопирован дословно; тело PR исправлено приёмщиком до вердикта)</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/87">#87</a></td><td>PR #93: три зонда переведены с удалённой <code>_chunk_payload</code> на <code>chunk_text</code> из <code>pipeline/chunking.py</code>; приёмка сверила арифметику построчно и дифференциальным прогоном на 3000 случайных входах — граница чанков совпадает символ в символ, сопоставимость с #27 и #28 по нарезке сохранена. Импорт-проверка на <code>master</code> исполнена приёмщиком: три строки OK, код возврата 0. Тем же PR по §9 закрыты два разбуженных дефекта: вшитая <code>image_revision</code> <code>f673dff</code> заменена снятием из git с fail-closed до первого запроса, а <code>except Exception: pass</code> импорт-проверки сужен до <code>KeyError</code>/<code>IndexError</code>. <code>src/</code> и <code>specs/</code> не тронуты</td><td>ACCEPTED WITH NOTES · 05.09 — merge <code>e4692bd</code>; ноты N‑1 (в доставляемом образе нет <code>.git</code>, поэтому <code>_image_revision()</code> отказывает на <code>probka-llm</code> каждый раз — заведена <code>owner-action</code> #94, она же новый блокер #77), N‑2 (объём шире буквы issue: <code>image_revision</code> и сужение <code>except</code> в тексте #87 не названы; правка оправдана §9 и объявлена в теле PR)</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/89">#89</a></td><td>PR #91: решение владельца — <strong>чинить</strong> до перепрогона #77; санитизация перенесена в единственную точку входа значения во всех трёх зондах (<code>_request</code> у <code>probe27.py</code> / <code>probe28.py</code>, оба <code>print</code> у <code>probe2.py</code>), поэтому allowlist держит и <code>results.json</code>, и stdout, и heartbeat; <code>_safe_finish_reason</code> снят как избыточный. Тем же PR по §9 закрыт разбуженный канал через <code>usage</code>: счётчики токенов выводятся только целым числом (<code>bool</code> исключён), иначе <code>null</code>. Раздел «Приватность» <code>README.md</code> переписан на общее правило «наружу уходит не пришедшее, а классифицированное». Побайтовая сопоставимость с комплектами #27 и #28 разорвана сознательно, решением владельца</td><td>ACCEPTED WITH NOTES · 05.09 — merge <code>3c3f7c9</code></td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/88">#88</a></td><td>PR #90: <code>finish_reason</code> уходит в heartbeat <code>probe27.py</code> только классификацией — <code>_safe_finish_reason</code> в точке эмиссии пропускает при <code>transport == "ok"</code> лишь allowlist (<code>stop</code> / <code>length</code> / <code>content_filter</code> / <code>tool_calls</code> / <code>function_call</code>), всё прочее — <code>other</code>; на транспортной ошибке проходит имя класса исключения по форме идентификатора. Заморозка §7 соблюдена: <code>_request</code> и сборка <code>document</code> не тронуты, <code>results.json</code> байт-в-байт прежний (вторая половина находки — #89). Тем же PR закрыта нота N‑2 вердикта #30 по §9: таблица сумм в <code>README.md</code> объявлена базой отсчёта, сумма доставляемого файла снимается командой перед <code>scp</code></td><td>ACCEPTED · 05.09 — merge <code>881e5c1</code></td></tr>
