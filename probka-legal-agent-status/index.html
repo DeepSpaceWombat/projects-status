@@ -680,7 +680,7 @@
     <p class="lede">Единица работы — issue. Работа вне issue не начинается. Состояние держится в этом файле; правит его приёмщик.</p>
     <p class="meta">
       <span>обновлено 5 сентября 2026</span>
-      <span>13 открытых · 37 закрытых</span>
+      <span>13 открытых · 38 закрытых</span>
       <span>github.com/DeepSpaceWombat/AM-legal-agent</span>
     </p>
   </header>
@@ -689,7 +689,7 @@
     <div>
       <p class="eyebrow">Свободны</p>
       <p class="n go">10</p>
-      <p class="note">#87 · #92 · #15 · #49 · #50 · #62 · #63 · #64 · #65 · #68</p>
+      <p class="note">#94 · #92 · #15 · #49 · #50 · #62 · #63 · #64 · #65 · #68</p>
     </div>
     <div>
       <p class="eyebrow">За гейтами</p>
@@ -710,7 +710,7 @@
       <span class="foldstat snap">
         <span><span class="k">Заморожено сейчас</span><span class="v sm crit"><code>_validate_response</code></span></span>
         <span><span class="k">Держатель заморозки</span><span class="v sm">issue <span class="freeze-mark" title="Держатель заморозки">#77</span></span></span>
-        <span><span class="k">Следующий шаг</span><span class="v sm">issue #87</span></span>
+        <span><span class="k">Следующий шаг</span><span class="v sm">issue #94</span></span>
         <span><span class="k">Разморожено</span><span class="v sm ok"><code>_chunk_payload</code></span></span>
         <span><span class="k">Заморозка передана</span><span class="v sm">04.09 · PR #76</span></span>
         <span class="ord" hidden><span class="k">Порядок взятия</span><span class="v ordline" id="take-order"></span></span>
@@ -718,8 +718,8 @@
       </summary>
       <div class="prose snapbody">
       <p><strong>Держатель заморозки</strong> — issue <strong>#77</strong>: её закрытие снимает заморозку <code>_validate_response</code>.</p>
-    <p><strong>Следующий шаг</strong> — issue <strong>#87</strong>: зонды 5.3 не импортируются на <code>master</code> (<code>_chunk_payload</code> переехал в <code>chunking.chunk_text</code>), и прогон #77 упал бы на импорте до первого запроса. Первая свободная <code>agent</code>-issue в сохранённом порядке очереди и единственный блокер держателя заморозки. PR #86 принят и слит 05.09, #30 закрыта: оснастка 5.3 живёт в <code>scripts/probe/</code>, у <code>probe27.py</code> есть JSONL-heartbeat по запросу.</p>
-    <p><strong>Почему разошлись:</strong> держатель читается из последнего вердикта в <code>decisions/acceptance-log.md</code>, следующий шаг — из очереди GitHub. #77 — операционный перепрогон, он сам стоит за гейтом #87 и взять его сейчас нельзя; поэтому поля впервые называют разные единицы.</p>
+    <p><strong>Следующий шаг</strong> — issue <strong>#94</strong>: ревизию образа неоткуда снять в контейнере на <code>probka-llm</code>. PR #93 принят и слит 05.09, #87 закрыта — зонды импортируются на <code>master</code>, вшитая <code>image_revision</code> заменена снятием из git с fail-closed. Но <code>.dockerignore</code> исключает <code>.git</code> из образа, а в монтируемый каталог по правилу приватности копируются только <code>*.py</code>: <code>probe27.py</code>/<code>probe28.py</code> теперь отказывают до первого запроса. Единственный блокер держателя заморозки, и он <code>owner-action</code> — развилку выбирает владелец.</p>
+    <p><strong>Почему разошлись:</strong> держатель читается из последнего вердикта в <code>decisions/acceptance-log.md</code>, следующий шаг — из очереди GitHub. #77 — операционный перепрогон, он сам стоит за гейтом #94 и взять его сейчас нельзя; поэтому поля называют разные единицы.</p>
     <p class="lead"><code>_validate_response</code> в <code>pipeline/anonymize/gate_llm.py</code> — держатель <strong>#77</strong>. <code>_chunk_payload</code> <strong>разморожена</strong>.</p>
     <p><strong>Синхронизировано 02.09 приёмкой PR #40 (issue #14).</strong> Пересдача F-3 снята: 15 PASS / 16, остаточных находок PII ноль на всех ходах. Сравнение с базой F-3 завершено, поэтому заморозка <code>_chunk_payload</code> снята — её держала сопоставимость измерения, а измерение закрыто. Решение владельца 02.09.</p>
     <p><strong>Вторая функция держится дальше.</strong> Приёмка PR #76 (04.09) закрыла #71 и передала заморозку <strong>#77</strong>: правило приёма хвоста стало точным allowlist (<code>Готово.</code>, <code>&lt;/s&gt;</code>, <code>&lt;|im_end|&gt;</code>), известного кодового отказа у него больше нет, но операционный перепрогон ступени 5.3 так и не состоялся и померяет уже это правило — правка <code>_validate_response</code> вне держателя рвёт сопоставимость молча. PR #82 принят 05.09: симметричное «нет держателя» с датой и ссылкой на вердикт теперь выразимо в обоих источниках. Это не снимает действующую заморозку #77: операционный перепрогон остаётся незавершённым. До этого заморозку держали #71 (передача приёмкой PR #69, 03.09) и #60 (передача приёмкой PR #57, 03.09).</p>
@@ -739,12 +739,12 @@
     <h2>Свободны<span class="qual">можно брать сейчас</span></h2>
     <div class="board">
       <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/87">#87</a></p>
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/94">#94</a></p>
         <div class="what">
-          <h3>Зонды 5.3 не импортируются на master: <code>_chunk_payload</code> переехал в <code>chunking.chunk_text</code></h3>
-          <p>Импорт падает <code>ImportError</code> до первого запроса: функция слита в <code>pipeline/chunking.py</code> под именем <code>chunk_text</code> и возвращает кортеж <code>(chunks, coverage)</code>. Прогоны #27 и #28 шли образом <code>f673dff</code>, где функция ещё была на месте; #77 пойдёт более новой ревизией и упадёт. Правка оснастки — отдельным PR <strong>до</strong> прогона, по норме заметки <code>probe-rig-location-2026-09-04</code>. Единственный блокер держателя заморозки #77.</p>
+          <h3>Ревизию образа неоткуда снять в контейнере на <code>probka-llm</code>: probe27/28 fail-closed до первого запроса</h3>
+          <p>PR #93 убрал вшитую <code>image_revision</code> — после переезда <code>_chunk_payload</code> она подписывала бы прогон чужой ревизией. Замена снимает ревизию из git и отказывает до открытия <code>httpx.Client</code>. Направление верное, но снять её негде: <code>.dockerignore:12</code> исключает <code>.git</code> из образа, а в <code>-v $HOME/probe2:/app/probe</code> по правилу приватности <code>probe-rig-location-2026-09-04</code> едут только именованные <code>*.py</code>. Проверено приёмкой фактами, не предположением. Развилку (ревизия файлом в образе на стадии сборки / довозится с зондами / иное) выбирает владелец: правка трогает <code>Dockerfile</code> либо состав доставки, то есть выходит за границу <code>scripts/probe/</code>.</p>
         </div>
-        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Правка на одну строку импорта плюс распаковка кортежа; сложность не в коде, а в дисциплине «до прогона, не во время»."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
+        <div class="side"><span class="pts" title="3/5 · Владелец, затем мидл · не параллелить — Кода немного, но решение меняет либо образ, либо правило «ровно четыре пути» доставки; цена ошибки — evidence-документ с ревизией, не соответствующей исполненному коду."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Владелец · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">owner-action</span></div>
       </div>
 
       <div class="issue">
@@ -841,7 +841,7 @@
           <h3>Ступень 5.3: операционный перепрогон на живой модели против allowlist хвоста</h3>
           <p>Правило приёма хвоста переписано дважды (PR #69, PR #76), но ни одна редакция не измерена: последний прогон #27 снят на прежнем правиле. Риск теперь обратный — штатный хвост вне трёх разрешённых значений превращает нормальный ответ в FAIL. Ноль правок кода: единица измеряет <code>_validate_response</code>, а не чинит её.</p>
         </div>
-        <div class="side"><span class="pts" title="4/5 · Синьор · не параллелить — Операционный прогон на живой модели: ноль правок кода, но результат правит правило приёма ответа ступени."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip crit">Заморозка</span><span class="chip hold">Ждёт</span><span class="gate">agent · spec-guard</span><span class="cond on">blocked-by #87</span></div>
+        <div class="side"><span class="pts" title="4/5 · Синьор · не параллелить — Операционный прогон на живой модели: ноль правок кода, но результат правит правило приёма ответа ступени."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip crit">Заморозка</span><span class="chip hold">Ждёт</span><span class="gate">agent · spec-guard</span><span class="cond on">blocked-by #94</span></div>
       </div>
 
     </div>
@@ -885,6 +885,7 @@
       <table id="closed-table">
         <thead><tr><th>Issue</th><th>Что закрыто</th><th>Вердикт</th></tr></thead>
         <tbody>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/87">#87</a></td><td>PR #93: три зонда переведены с удалённой <code>_chunk_payload</code> на <code>chunk_text</code> из <code>pipeline/chunking.py</code>; приёмка сверила арифметику построчно и дифференциальным прогоном на 3000 случайных входах — граница чанков совпадает символ в символ, сопоставимость с #27 и #28 по нарезке сохранена. Импорт-проверка на <code>master</code> исполнена приёмщиком: три строки OK, код возврата 0. Тем же PR по §9 закрыты два разбуженных дефекта: вшитая <code>image_revision</code> <code>f673dff</code> заменена снятием из git с fail-closed до первого запроса, а <code>except Exception: pass</code> импорт-проверки сужен до <code>KeyError</code>/<code>IndexError</code>. <code>src/</code> и <code>specs/</code> не тронуты</td><td>ACCEPTED WITH NOTES · 05.09 — merge <code>e4692bd</code>; ноты N‑1 (в доставляемом образе нет <code>.git</code>, поэтому <code>_image_revision()</code> отказывает на <code>probka-llm</code> каждый раз — заведена <code>owner-action</code> #94, она же новый блокер #77), N‑2 (объём шире буквы issue: <code>image_revision</code> и сужение <code>except</code> в тексте #87 не названы; правка оправдана §9 и объявлена в теле PR)</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/89">#89</a></td><td>PR #91: решение владельца — <strong>чинить</strong> до перепрогона #77; санитизация перенесена в единственную точку входа значения во всех трёх зондах (<code>_request</code> у <code>probe27.py</code> / <code>probe28.py</code>, оба <code>print</code> у <code>probe2.py</code>), поэтому allowlist держит и <code>results.json</code>, и stdout, и heartbeat; <code>_safe_finish_reason</code> снят как избыточный. Тем же PR по §9 закрыт разбуженный канал через <code>usage</code>: счётчики токенов выводятся только целым числом (<code>bool</code> исключён), иначе <code>null</code>. Раздел «Приватность» <code>README.md</code> переписан на общее правило «наружу уходит не пришедшее, а классифицированное». Побайтовая сопоставимость с комплектами #27 и #28 разорвана сознательно, решением владельца</td><td>ACCEPTED WITH NOTES · 05.09 — merge <code>3c3f7c9</code></td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/88">#88</a></td><td>PR #90: <code>finish_reason</code> уходит в heartbeat <code>probe27.py</code> только классификацией — <code>_safe_finish_reason</code> в точке эмиссии пропускает при <code>transport == "ok"</code> лишь allowlist (<code>stop</code> / <code>length</code> / <code>content_filter</code> / <code>tool_calls</code> / <code>function_call</code>), всё прочее — <code>other</code>; на транспортной ошибке проходит имя класса исключения по форме идентификатора. Заморозка §7 соблюдена: <code>_request</code> и сборка <code>document</code> не тронуты, <code>results.json</code> байт-в-байт прежний (вторая половина находки — #89). Тем же PR закрыта нота N‑2 вердикта #30 по §9: таблица сумм в <code>README.md</code> объявлена базой отсчёта, сумма доставляемого файла снимается командой перед <code>scp</code></td><td>ACCEPTED · 05.09 — merge <code>881e5c1</code></td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/30">#30</a></td><td>PR #86: измерительная оснастка 5.3 импортирована в <code>scripts/probe/</code> байт-в-байт (три суммы совпали с закреплёнными, ровно четыре пути, <code>scp -r</code> не применялся), затем <code>probe27.py</code> получил JSONL-heartbeat по <strong>запросу</strong>: <code>turn_start</code> / <code>request</code> / <code>run_end</code>, построчный флаш, отдельный файл — <code>progress.log</code> не тронут по формату. Приватность проверена приёмщиком построчно по всем трём точкам вывода: только числа, коды и фиксированные классификации; <code>value</code> находки не выходит нигде, <code>finish_reason</code> транспортной ошибки — имя класса исключения. <code>src/</code> и <code>specs/</code> не тронуты, заморозка <code>_validate_response</code> держится #77</td><td>ACCEPTED WITH NOTES · 05.09 — merge <code>31a1e79</code>; ноты N‑1 (объявленная зависимость #87 → #77 не была выражена нативно, выставлена приёмкой), N‑2 (таблица сумм в <code>scripts/probe/README.md</code> — база импорта, текущая сумма <code>probe27.py</code> в ней не названа)</td></tr>
