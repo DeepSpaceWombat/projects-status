@@ -680,7 +680,7 @@
     <p class="lede">Единица работы — issue. Работа вне issue не начинается. Состояние держится в этом файле; правит его приёмщик.</p>
     <p class="meta">
       <span>обновлено 5 сентября 2026</span>
-      <span>12 открытых · 37 закрытых</span>
+      <span>13 открытых · 37 закрытых</span>
       <span>github.com/DeepSpaceWombat/AM-legal-agent</span>
     </p>
   </header>
@@ -688,8 +688,8 @@
   <div class="tally">
     <div>
       <p class="eyebrow">Свободны</p>
-      <p class="n go">9</p>
-      <p class="note">#87 · #15 · #49 · #50 · #62 · #63 · #64 · #65 · #68</p>
+      <p class="n go">10</p>
+      <p class="note">#87 · #92 · #15 · #49 · #50 · #62 · #63 · #64 · #65 · #68</p>
     </div>
     <div>
       <p class="eyebrow">За гейтами</p>
@@ -745,6 +745,15 @@
           <p>Импорт падает <code>ImportError</code> до первого запроса: функция слита в <code>pipeline/chunking.py</code> под именем <code>chunk_text</code> и возвращает кортеж <code>(chunks, coverage)</code>. Прогоны #27 и #28 шли образом <code>f673dff</code>, где функция ещё была на месте; #77 пойдёт более новой ревизией и упадёт. Правка оснастки — отдельным PR <strong>до</strong> прогона, по норме заметки <code>probe-rig-location-2026-09-04</code>. Единственный блокер держателя заморозки #77.</p>
         </div>
         <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Правка на одну строку импорта плюс распаковка кортежа; сложность не в коде, а в дисциплине «до прогона, не во время»."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
+      </div>
+
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/92">#92</a></p>
+        <div class="what">
+          <h3>Гейт: сторож против расхождения трёх копий санитайзеров в <code>scripts/probe/</code></h3>
+          <p>Нота N‑3 вердикта PR #91 и решение владельца 05.09: зонды <strong>не сливаются</strong> в общий модуль — это меняло бы состав доставки, комплект доказательств и суммы всех трёх файлов ещё раз. Вместо слияния — проверка <code>repo.probe-classifier-copies</code> в <code>acceptance_check.py</code>: расхождение копий <em>между собой</em> валит вердикт, расхождение с продуктовыми константами <code>gate_llm</code> печатается справочно и не валит. <code>scripts/probe/*.py</code> в этой единице не правятся ни строкой.</p>
+        </div>
+        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Одна проверка плюс тесты зеркалом к 55 существующим; сложность в форме сверки (ast, а не diff строк), не в объёме."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
       </div>
 
       <div class="issue">
