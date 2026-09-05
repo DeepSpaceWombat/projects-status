@@ -680,7 +680,7 @@
     <p class="lede">Единица работы — issue. Работа вне issue не начинается. Состояние держится в этом файле; правит его приёмщик.</p>
     <p class="meta">
       <span>обновлено 6 сентября 2026</span>
-      <span>10 открытых · 41 закрытая</span>
+      <span>10 открытых · 42 закрытые</span>
       <span>github.com/DeepSpaceWombat/AM-legal-agent</span>
     </p>
   </header>
@@ -689,7 +689,7 @@
     <div>
       <p class="eyebrow">Свободны</p>
       <p class="n go">7</p>
-      <p class="note">#94 · #92 · #49 · #50 · #64 · #65 · #68</p>
+      <p class="note">#94 · #98 · #49 · #50 · #64 · #65 · #68</p>
     </div>
     <div>
       <p class="eyebrow">За гейтами</p>
@@ -748,12 +748,12 @@
       </div>
 
       <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/92">#92</a></p>
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/98">#98</a></p>
         <div class="what">
-          <h3>Гейт: сторож против расхождения трёх копий санитайзеров в <code>scripts/probe/</code></h3>
-          <p>Нота N‑3 вердикта PR #91 и решение владельца 05.09: зонды <strong>не сливаются</strong> в общий модуль — это меняло бы состав доставки, комплект доказательств и суммы всех трёх файлов ещё раз. Вместо слияния — проверка <code>repo.probe-classifier-copies</code> в <code>acceptance_check.py</code>: расхождение копий <em>между собой</em> валит вердикт, расхождение с продуктовыми константами <code>gate_llm</code> печатается справочно и не валит. <code>scripts/probe/*.py</code> в этой единице не правятся ни строкой.</p>
+          <h3>Сверку копий оснастки проверять мутационным набором, а не примерами</h3>
+          <p>Заведена приёмкой PR #96 (замечание R‑1). <code>repo.probe-classifier-copies</code> отказала трижды подряд одним и тем же способом — нормализовала лишнее и тихо зеленела; примерами этот класс не ловится. Предмет единицы — не логика проверки, а <strong>набор</strong>: таблица мутаций, применяемых к реальным <code>scripts/probe/*.py</code> во временной копии дерева, каждая обязана давать <code>FAIL</code> с адресом файла и символа, а добавление десятой мутации — одна строка таблицы. Блокер снят слиянием PR #96 06.09. К стартовым девяти приёмка PR #96 добавила две свои (ноты N‑1, N‑2): тип контейнера allowlist и переопределение санитайзера после <code>def</code>.</p>
         </div>
-        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Одна проверка плюс тесты зеркалом к 55 существующим; сложность в форме сверки (ast, а не diff строк), не в объёме."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
+        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Таблица мутаций поверх уже принятой проверки; сложность в форме набора, не в объёме."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
       </div>
 
       <div class="issue">
@@ -858,6 +858,7 @@
       <table id="closed-table">
         <thead><tr><th>Issue</th><th>Что закрыто</th><th>Вердикт</th></tr></thead>
         <tbody>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/92">#92</a></td><td>PR #96 (пересдача): проверка <code>repo.probe-classifier-copies</code> сверяет три копии санитайзеров оснастки по нормализованному <code>ast</code> — состав allowlist, литерал <code>other</code>, вызов <code>re.compile</code> целиком и тела <code>classify_finish_reason</code> / <code>safe_exc_name</code> / <code>safe_token_count</code>; ведущее подчёркивание, аннотации и докстринги расхождением не считаются, декораторы — считаются. Расхождение с продуктовыми константами <code>gate_llm</code> печатается справочной строкой и гейт не валит; исчезнувший или несинтаксичный файл зонда — <code>FAIL</code>, не тихий <code>PASS</code>. <code>scripts/probe/*.py</code>, <code>src/</code>, <code>specs/</code> не тронуты</td><td>ACCEPTED WITH NOTES · 06.09 — merge <code>22da5a2</code>; круг 2 после REJECTED 06.09 (R‑1 декораторы, R‑2 доказательства). Ноты N‑1 (отпечаток allowlist сводится к составу, поэтому <code>frozenset({…})</code> → <code>{…}</code> в одной копии проходит молча), N‑2 (переопределение санитайзера на уровне модуля после <code>def</code> вне предмета отпечатка) — обе в набор #98</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/62">#62</a></td><td>PR #97: штатный путь чтения разработчика теперь знает узкое исключение vault-only до точки сдачи — по одной фразе в <code>notes/dev-agent-brief.md</code> и <code>AGENTS.md</code>, обе делегируют маршрут и состав предъявления каноническому шагу 3a <code>notes/issue-pr-workflow.md</code>; смешанный диф остаётся обычной единицей с PR</td><td>ACCEPTED WITH NOTES · 06.09 — PR #97, merge <code>6b32de5</code>; нота N‑1: vault-коммит <code>ab7041e</code> общий с уже принятой #15</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/15">#15</a></td><td>Vault-only: живой путь <code>PravoGovSource.search()</code> → <code>GroundingService.verify_response()</code> дал непустой <code>grounding_report.json.references[]</code>; нормативный минимум поиска, PII-барьер и citation-verify подтверждены; открытый вопрос №23 отмечен как обеспеченный технически получаемыми данными и намеренно остаётся OPEN до бэктеста</td><td>ACCEPTED WITH NOTES · 06.09 — vault <code>a6f4bb5</code> + <code>7bb76bc</code> + <code>ab7041e</code>; два круга, нота N-1: последний коммит общий с #62</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/63">#63</a></td><td>PR #95: решение владельца исполнено вариантом 1 — <code>AGENTS.md</code> называет <code>graphify-out/2026-ММ-ДД/</code> слотом на день, объясняет перезапись последним состоянием перед overwrite, допустимость внутридневного коммита, штатное последующее <code>M</code> и сохранение барьера для нового untracked-каталога. Формулировка сверена приёмщиком с исходником <code>graphify.export.backup_if_protected</code>; <code>specs/</code>, код и артефакты <code>graphify-out/</code> не тронуты</td><td>ACCEPTED WITH NOTES · 05.09 — PR #95, merge <code>22637e8</code>; нота N‑1 (первый пункт чеклиста был пересказан, а не скопирован дословно; тело PR исправлено приёмщиком до вердикта)</td></tr>
