@@ -680,7 +680,7 @@
     <p class="lede">Единица работы — issue. Работа вне issue не начинается. Состояние держится в этом файле; правит его приёмщик.</p>
     <p class="meta">
       <span>обновлено 5 сентября 2026</span>
-      <span>14 открытых · 35 закрытых</span>
+      <span>13 открытых · 36 закрытых</span>
       <span>github.com/DeepSpaceWombat/AM-legal-agent</span>
     </p>
   </header>
@@ -688,8 +688,8 @@
   <div class="tally">
     <div>
       <p class="eyebrow">Свободны</p>
-      <p class="n go">11</p>
-      <p class="note">#87 · #88 · #89 · #15 · #49 · #50 · #62 · #63 · #64 · #65 · #68</p>
+      <p class="n go">10</p>
+      <p class="note">#87 · #89 · #15 · #49 · #50 · #62 · #63 · #64 · #65 · #68</p>
     </div>
     <div>
       <p class="eyebrow">За гейтами</p>
@@ -745,15 +745,6 @@
           <p>Импорт падает <code>ImportError</code> до первого запроса: функция слита в <code>pipeline/chunking.py</code> под именем <code>chunk_text</code> и возвращает кортеж <code>(chunks, coverage)</code>. Прогоны #27 и #28 шли образом <code>f673dff</code>, где функция ещё была на месте; #77 пойдёт более новой ревизией и упадёт. Правка оснастки — отдельным PR <strong>до</strong> прогона, по норме заметки <code>probe-rig-location-2026-09-04</code>. Единственный блокер держателя заморозки #77.</p>
         </div>
         <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Правка на одну строку импорта плюс распаковка кортежа; сложность не в коде, а в дисциплине «до прогона, не во время»."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
-      </div>
-
-      <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/88">#88</a></p>
-        <div class="what">
-          <h3><code>probe27</code>: <code>finish_reason</code> уходит в heartbeat только классификацией</h3>
-          <p>Найдено код-ревью PR #86, пропущено приёмкой (нота N‑4 вердикта #30). Поле приходит свободной строкой от недоверенного эндпойнта, а heartbeat писал его дословно — при том что файл объявлен «только числа, коды и классификации». Образец уже есть в продукте: <code>_record_finish_reason</code> сводит всё вне <code>KNOWN_FINISH_REASONS</code> к <code>other</code>. Правка <strong>только в точке эмиссии</strong>: <code>_request</code> и сборка <code>document</code> заморожены §7, <code>results.json</code> обязан остаться байт-в-байт прежним.</p>
-        </div>
-        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Allowlist в одной точке; сложность в границе — не задеть замороженный _request и итоговый артефакт."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
       </div>
 
       <div class="issue">
@@ -894,6 +885,7 @@
       <table id="closed-table">
         <thead><tr><th>Issue</th><th>Что закрыто</th><th>Вердикт</th></tr></thead>
         <tbody>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/88">#88</a></td><td>PR #90: <code>finish_reason</code> уходит в heartbeat <code>probe27.py</code> только классификацией — <code>_safe_finish_reason</code> в точке эмиссии пропускает при <code>transport == "ok"</code> лишь allowlist (<code>stop</code> / <code>length</code> / <code>content_filter</code> / <code>tool_calls</code> / <code>function_call</code>), всё прочее — <code>other</code>; на транспортной ошибке проходит имя класса исключения по форме идентификатора. Заморозка §7 соблюдена: <code>_request</code> и сборка <code>document</code> не тронуты, <code>results.json</code> байт-в-байт прежний (вторая половина находки — #89). Тем же PR закрыта нота N‑2 вердикта #30 по §9: таблица сумм в <code>README.md</code> объявлена базой отсчёта, сумма доставляемого файла снимается командой перед <code>scp</code></td><td>ACCEPTED · 05.09 — merge <code>881e5c1</code></td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/30">#30</a></td><td>PR #86: измерительная оснастка 5.3 импортирована в <code>scripts/probe/</code> байт-в-байт (три суммы совпали с закреплёнными, ровно четыре пути, <code>scp -r</code> не применялся), затем <code>probe27.py</code> получил JSONL-heartbeat по <strong>запросу</strong>: <code>turn_start</code> / <code>request</code> / <code>run_end</code>, построчный флаш, отдельный файл — <code>progress.log</code> не тронут по формату. Приватность проверена приёмщиком построчно по всем трём точкам вывода: только числа, коды и фиксированные классификации; <code>value</code> находки не выходит нигде, <code>finish_reason</code> транспортной ошибки — имя класса исключения. <code>src/</code> и <code>specs/</code> не тронуты, заморозка <code>_validate_response</code> держится #77</td><td>ACCEPTED WITH NOTES · 05.09 — merge <code>31a1e79</code>; ноты N‑1 (объявленная зависимость #87 → #77 не была выражена нативно, выставлена приёмкой), N‑2 (таблица сумм в <code>scripts/probe/README.md</code> — база импорта, текущая сумма <code>probe27.py</code> в ней не названа)</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/16">#16</a></td><td>PR #84: <code>CaseWorkspace</code> стал единственной властью над раскладкой §11 и retention-классами; удаляющий путь, аудит-запись, читатели и производители именованных артефактов идут за одним контрактом. Нормативная раскладка и retention не менялись</td><td>ACCEPTED · 05.09 — merge <code>5848ec6</code></td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/85">#85</a></td><td>Возврат PR #84: четыре записи ANONYMIZE, <code>case.yaml</code> и <code>parsed/attachments</code> переведены на именованные свойства; шесть producer-тестов доказали расхождение на <code>a82d273</code> и закрытие на <code>fd5236f</code></td><td>ACCEPTED · 05.09 — в составе PR #84</td></tr>
