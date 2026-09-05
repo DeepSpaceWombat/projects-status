@@ -679,8 +679,8 @@
     <h1>Очередь работ</h1>
     <p class="lede">Единица работы — issue. Работа вне issue не начинается. Состояние держится в этом файле; правит его приёмщик.</p>
     <p class="meta">
-      <span>обновлено 5 сентября 2026</span>
-      <span>12 открытых · 39 закрытых</span>
+      <span>обновлено 6 сентября 2026</span>
+      <span>11 открытых · 40 закрытых</span>
       <span>github.com/DeepSpaceWombat/AM-legal-agent</span>
     </p>
   </header>
@@ -688,8 +688,8 @@
   <div class="tally">
     <div>
       <p class="eyebrow">Свободны</p>
-      <p class="n go">9</p>
-      <p class="note">#94 · #92 · #15 · #49 · #50 · #62 · #64 · #65 · #68</p>
+      <p class="n go">8</p>
+      <p class="note">#94 · #92 · #49 · #50 · #62 · #64 · #65 · #68</p>
     </div>
     <div>
       <p class="eyebrow">За гейтами</p>
@@ -754,15 +754,6 @@
           <p>Нота N‑3 вердикта PR #91 и решение владельца 05.09: зонды <strong>не сливаются</strong> в общий модуль — это меняло бы состав доставки, комплект доказательств и суммы всех трёх файлов ещё раз. Вместо слияния — проверка <code>repo.probe-classifier-copies</code> в <code>acceptance_check.py</code>: расхождение копий <em>между собой</em> валит вердикт, расхождение с продуктовыми константами <code>gate_llm</code> печатается справочно и не валит. <code>scripts/probe/*.py</code> в этой единице не правятся ни строкой.</p>
         </div>
         <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Одна проверка плюс тесты зеркалом к 55 существующим; сложность в форме сверки (ast, а не diff строк), не в объёме."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
-      </div>
-
-      <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/15">#15</a></p>
-        <div class="what">
-          <h3>pravo.gov.ru: показать непустой references[] и обеспечить данными открытый вопрос №23</h3>
-          <p>Код и тест в <code>master</code>. Осталась сдаточная часть: живой запрос с непустым <code>references[]</code> и отметка в <code>open-questions</code> №23.</p>
-        </div>
-        <div class="side"><span class="pts" title="2/5 · Мидл · можно параллелить — Код и тест в master; остаётся живой запрос и отметка в открытом вопросе №23."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
       </div>
 
       <div class="issue">
@@ -876,6 +867,7 @@
       <table id="closed-table">
         <thead><tr><th>Issue</th><th>Что закрыто</th><th>Вердикт</th></tr></thead>
         <tbody>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/15">#15</a></td><td>Vault-only: живой путь <code>PravoGovSource.search()</code> → <code>GroundingService.verify_response()</code> дал непустой <code>grounding_report.json.references[]</code>; нормативный минимум поиска, PII-барьер и citation-verify подтверждены; открытый вопрос №23 отмечен как обеспеченный технически получаемыми данными и намеренно остаётся OPEN до бэктеста</td><td>ACCEPTED WITH NOTES · 06.09 — vault <code>a6f4bb5</code> + <code>7bb76bc</code> + <code>ab7041e</code>; два круга, нота N-1: последний коммит общий с #62</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/63">#63</a></td><td>PR #95: решение владельца исполнено вариантом 1 — <code>AGENTS.md</code> называет <code>graphify-out/2026-ММ-ДД/</code> слотом на день, объясняет перезапись последним состоянием перед overwrite, допустимость внутридневного коммита, штатное последующее <code>M</code> и сохранение барьера для нового untracked-каталога. Формулировка сверена приёмщиком с исходником <code>graphify.export.backup_if_protected</code>; <code>specs/</code>, код и артефакты <code>graphify-out/</code> не тронуты</td><td>ACCEPTED WITH NOTES · 05.09 — PR #95, merge <code>22637e8</code>; нота N‑1 (первый пункт чеклиста был пересказан, а не скопирован дословно; тело PR исправлено приёмщиком до вердикта)</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/87">#87</a></td><td>PR #93: три зонда переведены с удалённой <code>_chunk_payload</code> на <code>chunk_text</code> из <code>pipeline/chunking.py</code>; приёмка сверила арифметику построчно и дифференциальным прогоном на 3000 случайных входах — граница чанков совпадает символ в символ, сопоставимость с #27 и #28 по нарезке сохранена. Импорт-проверка на <code>master</code> исполнена приёмщиком: три строки OK, код возврата 0. Тем же PR по §9 закрыты два разбуженных дефекта: вшитая <code>image_revision</code> <code>f673dff</code> заменена снятием из git с fail-closed до первого запроса, а <code>except Exception: pass</code> импорт-проверки сужен до <code>KeyError</code>/<code>IndexError</code>. <code>src/</code> и <code>specs/</code> не тронуты</td><td>ACCEPTED WITH NOTES · 05.09 — merge <code>e4692bd</code>; ноты N‑1 (в доставляемом образе нет <code>.git</code>, поэтому <code>_image_revision()</code> отказывает на <code>probka-llm</code> каждый раз — заведена <code>owner-action</code> #94, она же новый блокер #77), N‑2 (объём шире буквы issue: <code>image_revision</code> и сужение <code>except</code> в тексте #87 не названы; правка оправдана §9 и объявлена в теле PR)</td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/89">#89</a></td><td>PR #91: решение владельца — <strong>чинить</strong> до перепрогона #77; санитизация перенесена в единственную точку входа значения во всех трёх зондах (<code>_request</code> у <code>probe27.py</code> / <code>probe28.py</code>, оба <code>print</code> у <code>probe2.py</code>), поэтому allowlist держит и <code>results.json</code>, и stdout, и heartbeat; <code>_safe_finish_reason</code> снят как избыточный. Тем же PR по §9 закрыт разбуженный канал через <code>usage</code>: счётчики токенов выводятся только целым числом (<code>bool</code> исключён), иначе <code>null</code>. Раздел «Приватность» <code>README.md</code> переписан на общее правило «наружу уходит не пришедшее, а классифицированное». Побайтовая сопоставимость с комплектами #27 и #28 разорвана сознательно, решением владельца</td><td>ACCEPTED WITH NOTES · 05.09 — merge <code>3c3f7c9</code></td></tr>
