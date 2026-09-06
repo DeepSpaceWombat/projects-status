@@ -680,7 +680,7 @@
     <p class="lede">Единица работы — issue. Работа вне issue не начинается. Состояние держится в этом файле; правит его приёмщик.</p>
     <p class="meta">
       <span>обновлено 6 сентября 2026</span>
-      <span>10 открытых · 43 закрытые</span>
+      <span>11 открытых · 43 закрытые</span>
       <span>github.com/DeepSpaceWombat/AM-legal-agent</span>
     </p>
   </header>
@@ -689,7 +689,12 @@
     <div>
       <p class="eyebrow">Свободны</p>
       <p class="n go">8</p>
-      <p class="note"><span class="freeze-mark" title="Держатель заморозки">#77</span> · #98 · #49 · #50 · #64 · #65 · #68 · #100</p>
+      <p class="note">#101 · #98 · #49 · #50 · #64 · #65 · #68 · #100</p>
+    </div>
+    <div>
+      <p class="eyebrow">За гейтами</p>
+      <p class="n warn">1</p>
+      <p class="note"><span class="freeze-mark" title="Держатель заморозки">#77</span></p>
     </div>
     <div>
       <p class="eyebrow">Backlog</p>
@@ -705,7 +710,7 @@
       <span class="foldstat snap">
         <span><span class="k">Заморожено сейчас</span><span class="v sm crit"><code>_validate_response</code></span></span>
         <span><span class="k">Держатель заморозки</span><span class="v sm">issue <span class="freeze-mark" title="Держатель заморозки">#77</span></span></span>
-        <span><span class="k">Следующий шаг</span><span class="v sm">issue #77</span></span>
+        <span><span class="k">Следующий шаг</span><span class="v sm">issue #101</span></span>
         <span><span class="k">Разморожено</span><span class="v sm ok"><code>_chunk_payload</code></span></span>
         <span><span class="k">Заморозка передана</span><span class="v sm">04.09 · PR #76</span></span>
         <span class="ord" hidden><span class="k">Порядок взятия</span><span class="v ordline" id="take-order"></span></span>
@@ -713,8 +718,8 @@
       </summary>
       <div class="prose snapbody">
       <p><strong>Держатель заморозки</strong> — issue <strong>#77</strong>: её закрытие снимает заморозку <code>_validate_response</code>.</p>
-    <p><strong>Следующий шаг</strong> — issue <strong>#77</strong>: операционный перепрогон ступени 5.3 на живой модели против allowlist хвоста. Гейт снят приёмкой PR #99 (issue #94, 06.09): ревизия образа пишется на сборке в <code>/opt/image-revision.txt</code>, оба зонда прочитали её в контейнере на <code>probka-llm</code> и напечатали двух свидетелей до открытия <code>httpx.Client</code>. Нативный <code>blockedBy</code> и метка <code>blocked</code> с #77 сняты, единица переехала в дорожку «Свободны».</p>
-    <p><strong>Поля сошлись:</strong> держатель заморозки и следующий шаг называют одну единицу — #77. Пока её гейтом была #94, они расходились намеренно; гейта больше нет. Карточка #77 остаётся помеченной <code>data-freeze</code>, поэтому в «Порядке взятия» она не участвует: держатель заморозки — не очередной пункт очереди, а единица, чьё закрытие снимает заморозку <code>_validate_response</code>.</p>
+    <p><strong>Следующий шаг</strong> — issue <strong>#101</strong>: оснастка прогона не видит форм хвоста, которых требует чеклист #77. <code>probe27.py</code> считает только классификации отказа валидации, поэтому хвост из allowlist и пустой хвост на прогоне не видны вовсе, а по остальным известно лишь число. Прогон без этой правки закрывает один пункт чеклиста из четырёх и не отвечает на вопрос «чем расширять allowlist», ради которого затевался.</p>
+    <p><strong>Поля разошлись, и это намеренно.</strong> Держатель заморозки — по-прежнему <strong>#77</strong> (последний вердикт в <code>decisions/acceptance-log.md</code>, приёмка PR #76), а следующий шаг — <strong>#101</strong>: 06.09 на #77 встал нативный <code>blockedBy #101</code> и метка <code>blocked</code>, единица переехала в дорожку «За гейтами». Причина порядка — норма <code>decisions/probe-rig-location-2026-09-04.md</code>, п. 1: правка оснастки идёт отдельным PR <em>до</em> прогона, не во время него. Прецедент — #87 перед этим же прогоном. Заморозка <code>_validate_response</code> при этом не двигается: её снимает закрытие #77, а не смена головы очереди.</p>
     <p class="lead"><code>_validate_response</code> в <code>pipeline/anonymize/gate_llm.py</code> — держатель <strong>#77</strong>. <code>_chunk_payload</code> <strong>разморожена</strong>.</p>
     <p><strong>Синхронизировано 02.09 приёмкой PR #40 (issue #14).</strong> Пересдача F-3 снята: 15 PASS / 16, остаточных находок PII ноль на всех ходах. Сравнение с базой F-3 завершено, поэтому заморозка <code>_chunk_payload</code> снята — её держала сопоставимость измерения, а измерение закрыто. Решение владельца 02.09.</p>
     <p><strong>Вторая функция держится дальше.</strong> Приёмка PR #76 (04.09) закрыла #71 и передала заморозку <strong>#77</strong>: правило приёма хвоста стало точным allowlist (<code>Готово.</code>, <code>&lt;/s&gt;</code>, <code>&lt;|im_end|&gt;</code>), известного кодового отказа у него больше нет, но операционный перепрогон ступени 5.3 так и не состоялся и померяет уже это правило — правка <code>_validate_response</code> вне держателя рвёт сопоставимость молча. PR #82 принят 05.09: симметричное «нет держателя» с датой и ссылкой на вердикт теперь выразимо в обоих источниках. Это не снимает действующую заморозку #77: операционный перепрогон остаётся незавершённым. До этого заморозку держали #71 (передача приёмкой PR #69, 03.09) и #60 (передача приёмкой PR #57, 03.09).</p>
@@ -733,14 +738,15 @@
   <section>
     <h2>Свободны<span class="qual">можно брать сейчас</span></h2>
     <div class="board">
-      <div class="issue" data-freeze>
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/77">#77</a></p>
+      <div class="issue">
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/101">#101</a></p>
         <div class="what">
-          <h3>Ступень 5.3: операционный перепрогон на живой модели против allowlist хвоста</h3>
-          <p><strong>Гейт снят 06.09 приёмкой PR #99 (issue #94).</strong> Ревизия образа теперь пишется на сборке в <code>/opt/image-revision.txt</code>, и оба зонда прочитали её в контейнере на <code>probka-llm</code> — проверено приёмкой своими копиями зондов и своим драйвером: <code>3d5ba875…</code>, двое свидетелей, <code>httpx.Client opened: 0</code>. Нативный <code>blockedBy</code> и метка <code>blocked</code> сняты.</p>
-          <p>Правило приёма хвоста переписано дважды (PR #69, PR #76), но ни одна редакция не измерена: последний прогон #27 снят на прежнем правиле. Риск теперь обратный — штатный хвост вне трёх разрешённых значений превращает нормальный ответ в FAIL. Ноль правок кода: единица измеряет <code>_validate_response</code>, а не чинит её. Её закрытие снимает заморозку.</p>
+          <h3>Оснастка 5.3: <code>probe27</code> не видит форм хвоста, которых требует чеклист #77</h3>
+          <p><strong>PR #102: REJECTED, 06.09, head <code>a8c55c1</code>.</strong> <a href="https://github.com/DeepSpaceWombat/AM-legal-agent/pull/102#issuecomment-5560343458">Возврат приёмки</a>: цикл классификатора сохраняет последний декодируемый объект, поэтому вложенный объект из непустого <code>findings</code> перезаписывает внешний schema-shaped ответ. Продукт принимает <code>FAIL</code> с хвостом <code>Готово.</code>, а зонд пишет <code>no_schema_shaped_object</code> вместо <code>allowlist:Готово.</code>; heartbeat и <code>summary.tail_shapes</code> искажены на штатной форме ответа. Исправление и поведенческая проверка остаются в #101 / PR #102, без правок <code>src/</code>. Вердикт: <a href="../decisions/acceptance-log.md"><code>acceptance-log</code></a>. <a href="archive/issue-board-2026-09-06-before-pr102-a8c55c1.html">Снимок доски до приёмки</a>.</p>
+          <p>Обнаружено при взятии #77 в работу 06.09. Зонд считает только классификации отказа валидации (<code>json_not_found</code>, <code>json_schema_invalid</code>, <code>json_with_trailing_content</code>) и булево «JSON дописан». Хвост из allowlist и пустой хвост на прогоне не видны вовсе — ответ принят, счётчик не растёт; по остальным известно лишь число. Восстановить формы после прогона нечем: тело ответа модели по правилу приватности не сохраняется нигде.</p>
+          <p>Предмет — классификация формы хвоста на каждый запрос с правилом приёма, <strong>импортированным</strong> из <code>gate_llm</code>, а не переписанным в оснастке. Приватность не ослабляется: совпадение с авторской константой печатается значением, незнакомый хвост — только признаками формы и номером группы <code>unknown-N</code>. Норма порядка — <code>decisions/probe-rig-location-2026-09-04.md</code>, п. 1: правка оснастки идёт отдельным PR до прогона.</p>
         </div>
-        <div class="side"><span class="pts" title="4/5 · Синьор · не параллелить — Операционный прогон на живой модели: ноль правок кода, но результат правит правило приёма ответа ступени."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip crit">Заморозка</span><span class="chip go">Свободна</span><span class="gate">agent · spec-guard</span></div>
+        <div class="side"><span class="pts" title="2/5 · Мидл · не параллелить — Классификатор поверх готового зонда; сложность в границе приватности, не в объёме."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
       </div>
 
       <div class="issue">
@@ -812,7 +818,16 @@
   <section>
     <h2>За гейтами<span class="qual">условие снятия названо в каждой</span></h2>
     <div class="board">
-      <p class="note">Пусто с 06.09: последний гейт — <code>blockedBy #94</code> у #77 — снят приёмкой PR #99. Держатель заморозки <span class="freeze-mark" title="Держатель заморозки">#77</span> стоит в дорожке «Свободны»: заморозка <code>_validate_response</code> не запрещает брать саму единицу, она запрещает править функцию вне неё.</p>
+      <div class="issue" data-freeze>
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/77">#77</a></p>
+        <div class="what">
+          <h3>Ступень 5.3: операционный перепрогон на живой модели против allowlist хвоста</h3>
+          <p><strong>Гейт с 06.09 — <a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/101">#101</a></strong> (нативный <code>blockedBy</code>, метка <code>blocked</code>): оснастка прогона не видит форм хвоста, которых требует чеклист. Прежний гейт — <code>blockedBy #94</code> — снят приёмкой PR #99 06.09: ревизия образа пишется на сборке в <code>/opt/image-revision.txt</code>, оба зонда прочитали её в контейнере на <code>probka-llm</code>. Образ ревизии <code>29eb1096</code> на хосте уже собран, барьер ревизии проверен исполнением.</p>
+          <p>Правило приёма хвоста переписано дважды (PR #69, PR #76), но ни одна редакция не измерена: последний прогон #27 снят на прежнем правиле. Риск теперь обратный — штатный хвост вне трёх разрешённых значений превращает нормальный ответ в FAIL. Ноль правок кода: единица измеряет <code>_validate_response</code>, а не чинит её. Её закрытие снимает заморозку.</p>
+        </div>
+        <div class="side"><span class="pts" title="4/5 · Синьор · не параллелить — Операционный прогон на живой модели: ноль правок кода, но результат правит правило приёма ответа ступени."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip crit">Заморозка</span><span class="chip warn">За гейтом #101</span><span class="gate">agent · spec-guard</span></div>
+      </div>
+
     </div>
   </section>
 
