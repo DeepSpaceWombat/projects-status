@@ -710,7 +710,7 @@
       <span class="foldstat snap">
         <span><span class="k">Заморожено сейчас</span><span class="v sm crit"><code>_validate_response</code></span></span>
         <span><span class="k">Держатель заморозки</span><span class="v sm">issue <span class="freeze-mark" title="Держатель заморозки">#77</span></span></span>
-        <span><span class="k">Следующий шаг</span><span class="v sm">issue <span class="freeze-mark" title="Держатель заморозки">#77</span></span></span>
+        <span><span class="k">Следующий шаг</span><span class="v sm">issue #104</span></span>
         <span><span class="k">Разморожено</span><span class="v sm ok"><code>_chunk_payload</code></span></span>
         <span><span class="k">Заморозка передана</span><span class="v sm">04.09 · PR #76</span></span>
         <span class="ord" hidden><span class="k">Порядок взятия</span><span class="v ordline" id="take-order"></span></span>
@@ -718,11 +718,11 @@
       </summary>
       <div class="prose snapbody">
       <p><strong>Держатель заморозки</strong> — issue <strong>#77</strong>: её закрытие снимает заморозку <code>_validate_response</code>.</p>
-    <p><strong>Следующий шаг</strong> — issue <strong>#77</strong>: прогон исполнен 07.09 и предъявлен к приёмке комментарием (маршрут 3a, репо-диф пуст), поэтому её следующий шаг — вердикт, а не взятие. Первая свободная для взятия — <strong>#98</strong>. Результат прогона: 16/16 ходов на профиле #27, числа базы #27 воспроизведены единица в единицу, и главное — <strong>ноль</strong> хвостов из allowlist за 69 запросов при 61 принятом ответе с пустым хвостом; вывод «чем расширять allowlist» — нечем, судьба allowlist ушла решением владельца строкой №30 <code>decisions/deferred-actions.md</code>.</p>
-    <p><strong>Поля совпали.</strong> Держатель заморозки и следующий шаг — одна и та же issue <strong>#77</strong>: нативный <code>blockedBy #101</code> и метка <code>blocked</code> сняты приёмкой 07.09 после слияния PR #102, дорожка «За гейтами» пуста. Расхождение 06.09 держала норма <code>decisions/probe-rig-location-2026-09-04.md</code>, п. 1: правка оснастки идёт отдельным PR <em>до</em> прогона, не во время него — прецедент #87 перед этим же прогоном. Заморозка <code>_validate_response</code> не двигалась и не двигается: её снимает вердикт приёмки #77, а не факт прогона. Держатель реестрового №28 — тоже #77: отдельная issue про верифицируемость дерева сборки заводится при её закрытии.</p>
+    <p><strong>Следующий шаг — #104:</strong> исправить документацию и предъявление #77 после холодного вердикта <strong>REJECTED 07.09</strong> в <code>decisions/acceptance-log.md</code>. Прогон завершён, но классы отказа ошибочно выданы за причины, равенство агрегатов — за побайтовую идентичность. Повторный запуск модели не требуется.</p>
+    <p><strong>Почему разошлись поля:</strong> по вердикту <code>decisions/acceptance-log.md</code> держатель заморозки — #77, маршрут исправления — #104. Нативных гейтов у #77 нет; отказ приёмки не снимает заморозку. Реестровый №28 остаётся за #77 до её закрытия. Ошибочная регистрация нерешённой развилки №30 отменена, судьба allowlist за владельца не решалась.</p>
     <p class="lead"><code>_validate_response</code> в <code>pipeline/anonymize/gate_llm.py</code> — держатель <strong>#77</strong>. <code>_chunk_payload</code> <strong>разморожена</strong>.</p>
     <p><strong>Синхронизировано 02.09 приёмкой PR #40 (issue #14).</strong> Пересдача F-3 снята: 15 PASS / 16, остаточных находок PII ноль на всех ходах. Сравнение с базой F-3 завершено, поэтому заморозка <code>_chunk_payload</code> снята — её держала сопоставимость измерения, а измерение закрыто. Решение владельца 02.09.</p>
-    <p><strong>Вторая функция держится дальше.</strong> Приёмка PR #76 (04.09) закрыла #71 и передала заморозку <strong>#77</strong>: правило приёма хвоста стало точным allowlist (<code>Готово.</code>, <code>&lt;/s&gt;</code>, <code>&lt;|im_end|&gt;</code>), известного кодового отказа у него больше нет, но операционный перепрогон ступени 5.3 так и не состоялся и померяет уже это правило — правка <code>_validate_response</code> вне держателя рвёт сопоставимость молча. PR #82 принят 05.09: симметричное «нет держателя» с датой и ссылкой на вердикт теперь выразимо в обоих источниках. Это не снимает действующую заморозку #77: операционный перепрогон остаётся незавершённым. До этого заморозку держали #71 (передача приёмкой PR #69, 03.09) и #60 (передача приёмкой PR #57, 03.09).</p>
+    <p><strong>Вторая функция держится дальше.</strong> PR #76 (04.09) передал заморозку #77. Прогон исполнен 07.09 на точном allowlist, но документация возвращена на исправление по #104. До принятой пересдачи #77 правка <code>_validate_response</code> вне держателя запрещена; возможность формы «нет держателя», введённая PR #82, сама заморозку не снимает.</p>
     <p>Держатель заморозки перечитывается из последнего вердикта в <code>decisions/acceptance-log.md</code>, а не угадывается по номеру issue. <code>AGENTS.md</code> §7 и эта карточка называют одну и ту же issue; совпадение проверяется исполняемо — <code>acceptance_check.py</code>, проверки <code>repo.freeze-anchor</code> и <code>vault.freeze-anchor</code>.</p>
       </div>
     </details>
@@ -738,26 +738,26 @@
   <section>
     <h2>Свободны<span class="qual">можно брать сейчас</span></h2>
     <div class="board">
-      <div class="issue" data-freeze>
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/77">#77</a></p>
-        <div class="what">
-          <h3>Ступень 5.3: операционный перепрогон на живой модели против allowlist хвоста</h3>
-          <p><strong>Прогон исполнен 07.09, единица предъявлена к приёмке комментарием</strong> (маршрут 3a: репо-диф пуст, работа — заметка <code>decisions/anonymize-tail-allowlist-rerun-2026-09-07.md</code> и строка №30 реестра). 16/16 ходов, обрывов нет, образ ревизии <code>d0f20e7</code>, оба свидетеля напечатаны до первого запроса. Числа воспроизвели базу #27 единица в единицу: 10 PASS / 6 FAIL, 63 чанка, <code>json_not_found=4</code>, <code>json_schema_invalid=0</code>, <code>json_with_trailing_content=4</code>, primary <code>stop</code> 59 / <code>length</code> 4, тех же шесть FAIL-ходов.</p>
-          <p><strong>Ответ на вопрос единицы: allowlist не участвует в приёме вообще.</strong> Все 61 принятых ответа — с пустым хвостом; попаданий в <code>Готово.</code> / <code>&lt;/s&gt;</code> / <code>&lt;|im_end|&gt;</code>, кандидатов и незнакомых хвостов — ноль за 69 запросов. Обратного отказа, которого боялась issue, нет; расширять allowlist нечем, но и подтверждения трёх значений нет — судьба allowlist ушла строкой №30 в <code>decisions/deferred-actions.md</code> как решение владельца. Отказы остались прежней природы: 4 <code>no_schema_shaped_object</code> (модель продолжила рассуждать JSON-ом) и 4 <code>no_complete_object</code> (обрыв по <code>length</code>) — allowlist их не чинит.</p>
-          <p>Ноль правок кода соблюдён: <code>src/</code> и рабочее дерево вне <code>graphify-out/</code> чисты, <code>_validate_response</code> измерена в редакции PR #76. Заморозку снимает вердикт приёмки, не сам прогон.</p>
-        </div>
-        <div class="side"><span class="pts" title="4/5 · Синьор · не параллелить — Операционный прогон на живой модели: ноль правок кода, но результат правит правило приёма ответа ступени."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip crit">Заморозка</span><span class="chip warn">На приёмке</span><span class="gate">agent · spec-guard</span></div>
-      </div>
-
       <div class="issue">
         <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/104">#104</a></p>
         <div class="what">
           <h3>Возврат #77: отделить классы отказа от причин и исправить документацию прогона</h3>
-          <p><strong>Заведена холодной приёмкой #77 07.09, её круг оборвался на лимите провайдера до коммита</strong> — вердикт в <code>decisions/acceptance-log.md</code> не записан, поэтому карточка зеркалирует только факт открытой issue, а не принятое решение. Предмет: класс <code>no_schema_shaped_object</code> означает «завершённый внешний объект есть, но ни один не принят продуктом», а заметка прогона и карточка #77 читали его как «второй объект после принятого»; конкретную причину privacy-safe комплект не различает. Плюс число ключей в privacy-обходе — 45, не 44.</p>
+          <p><strong>Адресный возврат по подписанному холодному вердикту #77: REJECTED 07.09.</strong> Исправить причинные утверждения о <code>no_schema_shaped_object</code>, побайтовую идентичность по агрегатам, число ключей (45, не 44) и ссылки на отменённую регистрацию №30. Прежняя issue повторно используется, дубля нет. Подробности — <code>decisions/acceptance-log.md</code>, оси Spec и Standards раздельно.</p>
           <p>Только vault-документация и предъявление: <code>src/</code>, <code>scripts/probe/</code>, <code>specs/</code>, входы и evidence не трогаются, модель не перезапускается, судьба allowlist не решается. Заморозка <code>_validate_response</code> остаётся у #77.</p>
         </div>
         <div class="side"><span class="pts" title="2/5 · Мидл · не параллелить — Правка формулировок в заметке и предъявлении: объём мал, но требует точного чтения кода классификатора."><span class="dots"><b>●●</b><i>○○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
       </div>
+      <div class="issue" data-freeze>
+        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/77">#77</a></p>
+        <div class="what">
+          <h3>Ступень 5.3: операционный перепрогон на живой модели против allowlist хвоста</h3>
+          <p><strong>REJECTED, холодная приёмка 07.09.</strong> Измерение завершено: 16 ходов, 63 чанка, 69 запросов, 10 PASS / 6 FAIL; образ <code>d0f20e7</code>. На исправление по #104 возвращены документация и предъявление, не запуск модели.</p>
+          <p>Наблюдение: 61 <code>empty</code> с ACCEPT, 4 <code>no_complete_object</code>, 4 <code>no_schema_shaped_object</code> с REJECT; попаданий в allowlist, кандидатов и unknown-групп нет. Последний класс не доказывает второй объект после принятого: конкретная причина по комплекту неидентифицируема. Равенство агрегатов не доказывает побайтовую идентичность ответов. Строка №30 реестра — <code>dropped</code>: нерешённая развилка не является принятым решением.</p>
+          <p>Ноль правок кода соблюдён: <code>src/</code> и рабочее дерево вне <code>graphify-out/</code> чисты, <code>_validate_response</code> измерена в редакции PR #76. Заморозку снимает вердикт приёмки, не сам прогон.</p>
+        </div>
+        <div class="side"><span class="pts" title="4/5 · Синьор · не параллелить — Операционный прогон на живой модели: ноль правок кода."><span class="dots"><b>●●●●</b><i>○</i></span><span class="who">Синьор · <span class="solo">соло</span></span></span><span class="chip crit">Заморозка</span><span class="chip warn">REJECTED · #104</span><span class="gate">agent · spec-guard</span></div>
+      </div>
+
 
       <div class="issue">
         <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/98">#98</a></p>
