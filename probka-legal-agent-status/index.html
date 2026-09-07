@@ -680,7 +680,7 @@
     <p class="lede">Единица работы — issue. Работа вне issue не начинается. Состояние держится в этом файле; правит его приёмщик.</p>
     <p class="meta">
       <span>обновлено 7 сентября 2026</span>
-      <span>11 открытых · 44 закрытые</span>
+      <span>10 открытых · 45 закрытых</span>
       <span>github.com/DeepSpaceWombat/AM-legal-agent</span>
     </p>
   </header>
@@ -688,8 +688,8 @@
   <div class="tally">
     <div>
       <p class="eyebrow">Свободны</p>
-      <p class="n go">9</p>
-      <p class="note"><span class="freeze-mark" title="Держатель заморозки">#77</span> · #104 · #98 · #49 · #50 · #64 · #65 · #68 · #100</p>
+      <p class="n go">8</p>
+      <p class="note"><span class="freeze-mark" title="Держатель заморозки">#77</span> · #104 · #98 · #49 · #50 · #64 · #65 · #68</p>
     </div>
     <div>
       <p class="eyebrow">За гейтами</p>
@@ -812,14 +812,6 @@
         <div class="side"><span class="pts" title="3/5 · Мидл · не параллелить — acceptance_check.py — общий файл с #49, #50, #64, #65."><span class="dots"><b>●●●</b><i>○○</i></span><span class="who">Мидл · <span class="solo">соло</span></span></span><span class="chip go">Свободна</span><span class="gate">agent · bug</span></div>
       </div>
 
-      <div class="issue">
-        <p class="no"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/100">#100</a></p>
-        <div class="what">
-          <h3>Подсказка отказа <code>scripts/image_revision.sh</code> зовёт сборку без оверлея</h3>
-          <p>Заведена приёмкой PR #99 (нота N‑1). Вне git-рабочей копии скрипт отказывает и печатает оператору <code>IMAGE_REVISION=&lt;ревизия&gt; docker compose build --pull</code> — команду без оверлея <code>docker-compose.build.yml</code>, поэтому ARG до сборки не доходит вовсе. Проверено на <code>probka-llm</code>: с валидным значением в окружении сборка падает на стадии <code>revision</code> сообщением <code>значение: []</code>, то есть подсказка ведёт во второй отказ, текст которого противоречит тому, что оператор сделал. Класс тот же, что у R‑1 приёмки PR #99, но инвариант держится: образа без верной ревизии не собирается ни один путь.</p>
-        </div>
-        <div class="side"><span class="pts" title="1/5 · Джун · можно параллелить — Строка сообщения плюс регрессия на совпадение подсказки с рабочей командой сборки."><span class="dots"><b>●</b><i>○○○○</i></span><span class="who">Джун · парал.</span></span><span class="chip go">Свободна</span><span class="gate">agent</span></div>
-      </div>
 
 
     </div>
@@ -870,6 +862,7 @@
       <table id="closed-table">
         <thead><tr><th>Issue</th><th>Что закрыто</th><th>Вердикт</th></tr></thead>
         <tbody>
+          <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/100">#100</a></td><td>PR #103: подсказка отказа <code>scripts/image_revision.sh</code> вне git-рабочей копии вызывает сборку через основной compose-файл и обязательный оверлей <code>docker-compose.build.yml</code>. Исполняемый тест извлекает напечатанную команду, подставляет тестовую ревизию и наблюдает вызов Docker с обоими файлами; bare-команд <code>docker compose build</code> вне <code>graphify-out/</code> не осталось. <code>src/</code>, <code>specs/</code> и замороженная <code>_validate_response</code> не затронуты</td><td>ACCEPTED · 07.09 — PR #103, merge <code>4f59fc1</code></td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/101">#101</a></td><td>PR #102 (круг 4): <code>probe27.py</code> классифицирует форму хвоста после последнего внешнего объекта, который принимает сама ступень — граница делегирована продуктовой <code>LlmGateChecker._validate_response(candidate[start:end], checked_text)</code>, поэтому в неё входят allowlist <code>verdict</code> и G-5 для <code>finding.value</code>, а второй копии правила в оснастке нет. Хвост уходит наружу классом (<code>empty</code>, <code>allowlist:</code>, <code>candidate:</code>, <code>unknown-N</code>, <code>no_schema_shaped_object</code>, <code>no_complete_object</code>, <code>no_response</code>), признаками формы и номером группы; ни значение, ни хэш незнакомого хвоста процесс не покидают. Приёмка перепроверила исполнением: 33 синтетических ответа, совпадение с продуктом 33/33, три блокирующих репро круга 3 закрыты, утечек текста в сериализованных формах нет; <code>src/</code>, <code>specs/</code>, чанкование, <code>max_tokens</code> и repair-контур не тронуты</td><td>ACCEPTED WITH NOTES · 07.09 — PR #102, merge <code>d0f20e7</code>; четыре круга (REJECTED 06.09 ×2, 07.09 ×1); нота N‑1: импорт <code>_is_harmless_tail</code> после делегирования не вызывается. Гейт #77 снят. <a href="archive/issue-board-2026-09-07-before-pr102-accept-32acb66.html">Снимок доски до приёмки</a></td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/94">#94</a></td><td>PR #99 (пересдача): источник ревизии образа перенесён в сам образ — build-ARG <code>IMAGE_REVISION</code> проверяется отдельной дешёвой стадией <code>revision</code> и уезжает в <code>/opt/image-revision.txt</code>, зонды 5.3 читают файл fail-closed до открытия <code>httpx.Client</code>, отката на <code>git</code> нет. Обязательность живёт в оверлее сборки <code>docker-compose.build.yml</code> (условие 1 владельца дословно), запуск собранного образа переменной не требует; забытый оверлей ловит стадия <code>revision</code>. Приёмка перепроверила исполнением всё: оба контура сборки на <code>probka-llm</code>, чтение ревизии обоими зондами в контейнере своими копиями и своим драйвером (<code>3d5ba875…</code>, двое свидетелей, ноль открытий клиента), fail-closed на подмену файла мусором/пустым/многострочным/не-UTF-8, отказ <code>git status</code> в настоящем повреждённом репозитории, восемь входов валидатора стадии</td><td>ACCEPTED WITH NOTES · 06.09 — PR #99, merge <code>29eb109</code>; первый заход REJECTED (R‑1/R‑2/R‑3), пересдача на head <code>3d5ba87</code>; ноты N‑1 (подсказка <code>scripts/image_revision.sh</code> зовёт сборку без оверлея → #100), N‑2 (опись <code>05-repo-skeleton</code> не знает <code>docker-compose.build.yml</code> и <code>scripts/image_revision.sh</code> — реестровый №29), N‑3 (холодная сборка с пустым кэшем не проверена). Гейт #77 снят. <a href="archive/issue-board-2026-09-06-before-pr99-accept-3d5ba87.html">Снимок доски до приёмки</a></td></tr>
           <tr><td class="q"><a href="https://github.com/DeepSpaceWombat/AM-legal-agent/issues/92">#92</a></td><td>PR #96 (пересдача): проверка <code>repo.probe-classifier-copies</code> сверяет три копии санитайзеров оснастки по нормализованному <code>ast</code> — состав allowlist, литерал <code>other</code>, вызов <code>re.compile</code> целиком и тела <code>classify_finish_reason</code> / <code>safe_exc_name</code> / <code>safe_token_count</code>; ведущее подчёркивание, аннотации и докстринги расхождением не считаются, декораторы — считаются. Расхождение с продуктовыми константами <code>gate_llm</code> печатается справочной строкой и гейт не валит; исчезнувший или несинтаксичный файл зонда — <code>FAIL</code>, не тихий <code>PASS</code>. <code>scripts/probe/*.py</code>, <code>src/</code>, <code>specs/</code> не тронуты</td><td>ACCEPTED WITH NOTES · 06.09 — merge <code>22da5a2</code>; круг 2 после REJECTED 06.09 (R‑1 декораторы, R‑2 доказательства). Ноты N‑1 (отпечаток allowlist сводится к составу, поэтому <code>frozenset({…})</code> → <code>{…}</code> в одной копии проходит молча), N‑2 (переопределение санитайзера на уровне модуля после <code>def</code> вне предмета отпечатка) — обе в набор #98</td></tr>
